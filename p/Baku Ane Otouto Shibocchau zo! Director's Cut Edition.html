@@ -26,6 +26,15 @@
             flex: 1;
         }
 
+        /* Style untuk wrapper top banner */
+        .topbanner-wrapper {
+            margin: 15px 0 25px 0;
+            background: linear-gradient(135deg, #0f0f0f, #141414);
+            padding: 15px 10px;
+            border-radius: 16px;
+            border: 1px solid #222;
+        }
+
         .video-info-container {
             background: linear-gradient(135deg, #111, #1a1a1a);
             border-radius: 16px;
@@ -266,6 +275,9 @@
 <div id="header-placeholder"></div>
 
 <div id="main-wrapper">
+    <!-- TEMPAT UNTUK LOAD TOPBANNER.HTML -->
+    <div id="topbanner-container" class="topbanner-wrapper"></div>
+
     <div id="videoInfoContainer" class="video-info-container">
         <div style="text-align: center; padding: 20px;">
             <i class="fa-solid fa-spinner fa-pulse"></i> Memuat data...
@@ -291,15 +303,38 @@
 
 <div id="footer-placeholder"></div>
 
-<!-- VIDEO ID - DIPERBAIKI: menggunakan window.VIDEO_IDS -->
+<!-- VIDEO ID -->
 <script>
-    window.CURRENT_TITLE = "Koushoku no Chuugi Kunoichi Botan";  // FORCE MANUAL
+    window.CURRENT_TITLE = "Koushoku no Chuugi Kunoichi Botan";
     
     window.VIDEO_IDS = [
       "xS40Dk7fc"
     ];
     console.log("VIDEO_IDS didefinisikan:", window.VIDEO_IDS);
     console.log("CURRENT_TITLE force:", window.CURRENT_TITLE);
+</script>
+
+<!-- LOAD TOPBANNER.HTML -->
+<script>
+    fetch('topbanner.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('topbanner-container').innerHTML = data;
+            console.log('✅ topbanner.html berhasil di-load');
+            
+            // Eksekusi script yang ada di dalam topbanner.html
+            const scripts = document.querySelectorAll('#topbanner-container script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+            });
+        })
+        .catch(error => console.error('Error loading topbanner.html:', error));
 </script>
 
 <!-- Cuma 1 file JS sekarang -->
