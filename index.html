@@ -244,6 +244,20 @@
             color: #aaa;
             font-size: 1rem;
         }
+
+        /* Style untuk container sosial bar */
+        .socialbar-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .socialbar-container {
+                padding: 0 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -260,6 +274,9 @@
 
 <!-- Top Banner -->
 <div id="topbanner-container"></div>
+
+<!-- Sosial Bar Container -->
+<div id="socialbar-container" class="socialbar-container"></div>
 
 <div class="main-content-container">
     <div class="section-header">
@@ -326,15 +343,55 @@
             });
     }
 
+    // Fungsi untuk memuat sosial bar dari file sosialbar.html
+    function loadSocialBar() {
+        fetch('sosialbar.html?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                const container = document.getElementById('socialbar-container');
+                if (!container) return;
+                container.innerHTML = data;
+                
+                // Jalankan semua script yang ada di dalam sosialbar.html
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    if (oldScript.parentNode) oldScript.remove();
+                });
+                
+                console.log('Social bar loaded successfully');
+            })
+            .catch(error => {
+                console.error('Error loading sosialbar.html:', error);
+                const container = document.getElementById('socialbar-container');
+                if (container) {
+                    container.innerHTML = '<div style="text-align:center; padding:20px; background:#121212; border-radius:20px; border:1px solid #ff3b6f;">⚠️ Gagal memuat Social Bar. Pastikan file sosialbar.html tersedia.</div>';
+                }
+            });
+    }
+
     // Memuat Top Banner, Middle Banner, Bottom Banner, Header, dan Footer
     loadComponent('topbanner-container', 'topbanner.html');
     loadComponent('middlebanner-container', 'middlebanner.html');
     loadComponent('bottombanner-container', 'bottombanner.html');
     loadComponent('header-placeholder', 'header.html');
     loadComponent('footer-placeholder', 'footer.html');
+    
+    // Memuat sosial bar dari file sosialbar.html
+    loadSocialBar();
 </script>
 <script src="script.js"></script>
-<script src="https://rhubarbambassadorweep.com/51/51/18/515118858cb0e87294665da7b1f2d1c0.js"></script>
 
 </body>
 </html>
