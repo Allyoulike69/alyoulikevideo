@@ -1,10 +1,10 @@
 // ==================== KONFIGURASI ====================
-const DATA_URL = "https://allyoulikevideo.neocities.org/p/daftar.json";
-const BASE_URL = "https://allyoulikevideo.neocities.org/p/";
-const HOME_URL = "https://allyoulikevideo.neocities.org/";
+const DATA_URL = "https://allyoulike69.github.io/alyoulikevideo/p/daftar.json";
+const BASE_URL = "https://allyoulike69.github.io/alyoulikevideo/p/";
+const HOME_URL = "https://allyoulike69.github.io/alyoulikevideo/";
 const COMIC_URL = "https://allyoulikecomic.neocities.org/";
 const VIDEO34_URL = "https://www.google.com";
-const SEARCH_PAGE_URL = "https://allyoulikevideo.neocities.org/search";
+const SEARCH_PAGE_URL = "https://allyoulike69.github.io/alyoulikevideo/search";
 
 // ==================== VARIABEL GLOBAL ====================
 let allVideos = [];
