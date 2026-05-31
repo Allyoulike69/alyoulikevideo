@@ -302,56 +302,28 @@
     console.log("CURRENT_TITLE force:", window.CURRENT_TITLE);
 </script>
 
-<script>
-    // Fungsi untuk memuat konten dari file eksternal ke dalam container
-    function loadComponent(containerId, fileUrl) {
-        fetch(fileUrl + '?t=' + Date.now())
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(data => {
-                const container = document.getElementById(containerId);
-                if (!container) return;
-                container.innerHTML = data;
-                
-                // Jika yang dimuat adalah file banner, jalankan script iklan yang ada di dalamnya
-                if (fileUrl === 'topbanner.html' || fileUrl === 'middlebanner.html' || fileUrl === 'bottombanner.html') {
-                    const scripts = container.querySelectorAll('script');
-                    scripts.forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        if (oldScript.src) {
-                            newScript.src = oldScript.src;
-                        } else {
-                            newScript.textContent = oldScript.textContent;
-                        }
-                        document.body.appendChild(newScript);
-                        if (oldScript.parentNode) oldScript.remove();
-                    });
-                }
-            })
-            .catch(error => {
-                console.error(`Error loading ${fileUrl}:`, error);
-                const container = document.getElementById(containerId);
-                if (container) {
-                    container.innerHTML = '<div style="text-align:center; padding:10px; color:#ff3b6f;">Failed to load banner. Please check network.</div>';
-                }
-            });
-    }
-
-    // Memuat Top Banner, Middle Banner, Bottom Banner, Header, dan Footer
-    loadComponent('topbanner-container', 'topbanner.html');
-    loadComponent('middlebanner-container', 'middlebanner.html');
-    loadComponent('bottombanner-container', 'bottombanner.html');
-    loadComponent('header-placeholder', 'header.html');
-    loadComponent('footer-placeholder', 'footer.html');
-</script>
-
 <!-- Cuma 1 file JS sekarang -->
 <script src="main.js"></script>
 
+<!-- LOAD HEADER & FOOTER -->
+<script>
+    fetch('header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+            if (typeof attachHeaderEvents === 'function') {
+                attachHeaderEvents();
+            }
+        })
+        .catch(error => console.error('Error loading header:', error));
+    
+    fetch('footer.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('footer-placeholder').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading footer:', error));
+</script>
 
 </body>
 </html>
