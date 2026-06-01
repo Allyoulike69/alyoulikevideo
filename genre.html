@@ -25,6 +25,26 @@
           z-index: 1000;
         }
 
+        /* Style untuk banner container */
+        .banner-container {
+            width: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+        .banner-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Container untuk sosial bar - fixed di pojok kanan bawah */
+        .social-bar-fixed {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
         .main-content-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -254,11 +274,25 @@
             color: #aaa;
             font-size: 1rem;
         }
+
+        /* Responsive untuk sosial bar di mobile */
+        @media (max-width: 768px) {
+            .social-bar-fixed {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div id="header-placeholder"></div>
+
+<!-- Container untuk top banner (di bawah header) -->
+<div id="topbanner-container" class="banner-container"></div>
+
+<!-- Container untuk middle banner -->
+<div id="middlebanner-container" class="banner-container"></div>
 
 <div class="mobile-search-overlay" id="mobileSearchOverlay">
     <div class="mobile-search-container">
@@ -280,7 +314,85 @@
     <div id="pagination" class="pagination-container"></div>
 </div>
 
+<!-- Container untuk bottom banner -->
+<div id="bottombanner-container" class="banner-container"></div>
+
 <div id="footer-placeholder"></div>
+
+<!-- Container untuk sosial bar (fixed position) -->
+<div id="sosialbar-container" class="social-bar-fixed"></div>
+
+<script>
+// Fungsi untuk memuat file HTML ke dalam elemen
+function loadHTML(elementId, filePath, callback) {
+    fetch(filePath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = data;
+                
+                // Jika ada script di dalam konten yang dimuat, jalankan ulang
+                const scripts = element.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    document.body.removeChild(newScript);
+                });
+            }
+            if (callback) callback();
+        })
+        .catch(error => {
+            console.warn(`Gagal memuat ${filePath}:`, error);
+            const element = document.getElementById(elementId);
+            if (element && elementId !== 'sosialbar-container') {
+                // Tampilkan pesan error di elemen (opsional)
+                element.innerHTML = `<div style="background:#1a1a1a; color:#ff3b6f; text-align:center; padding:10px;">⚠️ Tidak dapat memuat konten</div>`;
+            } else if (elementId === 'sosialbar-container') {
+                // Untuk sosial bar, tampilkan pesan kecil
+                element.innerHTML = `<div style="background:#1a1a1a; color:#ff3b6f; padding:8px 12px; border-radius:50px; font-size:12px;">⚠️ Error</div>`;
+            }
+        });
+}
+
+// Fungsi untuk memuat header
+function loadHeader() {
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    if (headerPlaceholder) {
+        fetch('topbanner.html')
+            .then(response => response.text())
+            .then(data => {
+                headerPlaceholder.innerHTML = data;
+            })
+            .catch(error => {
+                console.warn('Gagal memuat header:', error);
+                headerPlaceholder.innerHTML = '<div style="background:#1a1a1a; color:#ff3b6f; text-align:center; padding:10px;">⚠️ Header tidak tersedia</div>';
+            });
+    }
+}
+
+// Memuat semua banner dan sosial bar setelah halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    // Panggil fungsi load untuk masing-masing komponen
+    loadHTML('topbanner-container', 'topbanner.html');
+    loadHTML('middlebanner-container', 'middlebanner.html');
+    loadHTML('bottombanner-container', 'bottombanner.html');
+    loadHTML('sosialbar-container', 'sosialbar.html');
+    
+    // Load header terpisah karena posisinya berbeda
+    loadHeader();
+});
+</script>
 
 <script src="genre.js"></script>
 </body>
