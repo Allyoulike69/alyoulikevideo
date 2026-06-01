@@ -259,6 +259,8 @@
             }
         }
     </style>
+    <!-- Popup Container -->
+<div id="popup-container"></div>
 </head>
 <body>
 
@@ -303,6 +305,8 @@
 
 <!-- Sosial Bar Container -->
 <div id="socialbar-container" class="socialbar-container"></div>
+
+
 
 <script>
     // Fungsi untuk memuat konten dari file eksternal ke dalam container
@@ -381,6 +385,118 @@
             });
     }
 
+    // Fungsi untuk memuat popup.html
+    function loadPopup() {
+        // Cek apakah popup sudah ditampilkan di session ini
+        const hasSeenPopup = sessionStorage.getItem('hasSeenPopup');
+        
+        // Jika sudah dilihat di session ini, jangan tampilkan lagi
+        if (hasSeenPopup === 'true') {
+            console.log('Popup already shown in this session');
+            return;
+        }
+        
+        fetch('popup.html?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                const container = document.getElementById('popup-container');
+                if (!container) return;
+                container.innerHTML = data;
+                
+                // Jalankan semua script yang ada di dalam popup.html
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    if (oldScript.parentNode) oldScript.remove();
+                });
+                
+                // Style untuk popup overlay
+                const style = document.createElement('style');
+                style.textContent = `
+                    #popup-container {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        z-index: 10001;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: rgba(0,0,0,0.85);
+                        backdrop-filter: blur(8px);
+                        animation: fadeInPopup 0.3s ease;
+                    }
+                    @keyframes fadeInPopup {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    
+                    /* Style untuk tombol close jika ada di popup.html dengan class .close-popup */
+                    #popup-container .close-popup,
+                    #popup-container .popup-close {
+                        cursor: pointer;
+                    }
+                    
+                    /* Auto close jika popup.html memiliki elemen dengan class .popup-content */
+                    #popup-container .popup-content {
+                        max-width: 90vw;
+                        max-height: 90vh;
+                        overflow: auto;
+                        position: relative;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Tambahkan event listener untuk menutup popup ketika klik di luar konten
+                container.addEventListener('click', function(e) {
+                    if (e.target === container) {
+                        closePopup();
+                    }
+                });
+                
+                // Tandai bahwa popup sudah ditampilkan di session ini
+                sessionStorage.setItem('hasSeenPopup', 'true');
+                
+                console.log('Popup loaded successfully');
+            })
+            .catch(error => {
+                console.error('Error loading popup.html:', error);
+            });
+    }
+    
+    // Fungsi untuk menutup popup
+    function closePopup() {
+        const container = document.getElementById('popup-container');
+        if (container) {
+            container.style.animation = 'fadeOutPopup 0.3s ease';
+            setTimeout(() => {
+                container.remove();
+            }, 300);
+        }
+    }
+    
+    // Style untuk fade out
+    const fadeOutStyle = document.createElement('style');
+    fadeOutStyle.textContent = `
+        @keyframes fadeOutPopup {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(fadeOutStyle);
+
     // Memuat Top Banner, Middle Banner, Bottom Banner, Header, dan Footer
     loadComponent('topbanner-container', 'topbanner.html');
     loadComponent('middlebanner-container', 'middlebanner.html');
@@ -390,6 +506,15 @@
     
     // Memuat sosial bar dari file sosialbar.html
     loadSocialBar();
+    
+    // Expose fungsi closePopup ke global agar bisa dipanggil dari dalam popup.html
+    window.closePopup = closePopup;
+    
+    // Tunggu hingga semua komponen utama selesai dimuat, lalu tampilkan popup
+    window.addEventListener('load', function() {
+        // Tampilkan popup dengan delay 0.5 detik agar tidak mengganggu loading awal
+        setTimeout(loadPopup, 500);
+    });
 </script>
 <script src="script.js"></script>
 
