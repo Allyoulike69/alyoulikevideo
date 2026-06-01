@@ -106,7 +106,7 @@ function filterByGenre(genre) {
     if (genreDropdown) genreDropdown.classList.remove('show');
 }
 
-// ==================== FUNGSI RENDER YANG DIUBAH ====================
+// ==================== FUNGSI RENDER ====================
 function renderVideoGrid(videoArray, gridId, isFeatured = false, isNewUploads = false, currentPage = 1) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
@@ -121,7 +121,6 @@ function renderVideoGrid(videoArray, gridId, isFeatured = false, isNewUploads = 
         let title = video.title || "Untitled Video";
         let newBadge = '';
         
-        // NEW BADGE HANYA TAMPIL DI HALAMAN 1 (currentPage === 1)
         if (isNewUploads && currentPage === 1 && idx < 5 && !currentGenre) {
             newBadge = '<span class="badge-new">NEW</span>';
         }
@@ -215,103 +214,161 @@ function updatePagination() {
 
 // ==================== ATTACH EVENT LISTENER HEADER ====================
 function attachHeaderEvents() {
-    // Search desktop
-    const searchDesktopBtn = document.getElementById('searchBtnDesktop');
-    const searchDesktopInput = document.getElementById('searchInputDesktop');
-    if (searchDesktopBtn) searchDesktopBtn.onclick = () => goToSearchPage(searchDesktopInput?.value);
-    if (searchDesktopInput) searchDesktopInput.onkeypress = (e) => { if (e.key === 'Enter') goToSearchPage(e.target.value); };
+    console.log("Attaching header events...");
     
-    // Search mobile
-    const mobileIcon = document.getElementById('searchIconMobile');
-    const mobileOverlay = document.getElementById('mobileSearchOverlay');
-    const closeSearch = document.getElementById('closeSearchBtn');
-    const mobileSearchBtn = document.getElementById('searchBtnMobile');
-    const mobileSearchInput = document.getElementById('searchInputMobile');
+    // Search Desktop
+    const searchBtnDesktop = document.getElementById('searchBtnDesktop');
+    const searchInputDesktop = document.getElementById('searchInputDesktop');
     
-    if (mobileIcon) {
-        mobileIcon.onclick = () => { 
-            if (mobileOverlay) mobileOverlay.style.display = 'block'; 
-            setTimeout(() => mobileSearchInput?.focus(), 100); 
+    if (searchBtnDesktop) {
+        searchBtnDesktop.onclick = function() {
+            if (searchInputDesktop) goToSearchPage(searchInputDesktop.value);
         };
-    }
-    if (closeSearch) {
-        closeSearch.onclick = () => { 
-            if (mobileOverlay) mobileOverlay.style.display = 'none'; 
-            if (mobileSearchInput) mobileSearchInput.value = ''; 
-        };
-    }
-    if (mobileSearchBtn) {
-        mobileSearchBtn.onclick = () => { 
-            const q = mobileSearchInput?.value.trim(); 
-            if (mobileOverlay) mobileOverlay.style.display = 'none'; 
-            goToSearchPage(q); 
-        };
-    }
-    if (mobileSearchInput) {
-        mobileSearchInput.onkeypress = (e) => { 
-            if (e.key === 'Enter') { 
-                const q = e.target.value.trim(); 
-                if (mobileOverlay) mobileOverlay.style.display = 'none'; 
-                goToSearchPage(q); 
-            } 
-        };
-    }
-    if (mobileOverlay) {
-        mobileOverlay.addEventListener('click', (e) => { 
-            if (e.target === mobileOverlay) mobileOverlay.style.display = 'none'; 
-        });
     }
     
-    // Navigation
+    if (searchInputDesktop) {
+        searchInputDesktop.onkeypress = function(e) {
+            if (e.key === 'Enter') goToSearchPage(this.value);
+        };
+    }
+    
+    // Search Mobile
+    const searchIconMobile = document.getElementById('searchIconMobile');
+    const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+    const closeSearchBtn = document.getElementById('closeSearchBtn');
+    const searchBtnMobile = document.getElementById('searchBtnMobile');
+    const searchInputMobile = document.getElementById('searchInputMobile');
+    
+    if (searchIconMobile) {
+        searchIconMobile.onclick = function() {
+            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'block';
+            setTimeout(function() { if (searchInputMobile) searchInputMobile.focus(); }, 100);
+        };
+    }
+    
+    if (closeSearchBtn) {
+        closeSearchBtn.onclick = function() {
+            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
+            if (searchInputMobile) searchInputMobile.value = '';
+        };
+    }
+    
+    if (searchBtnMobile) {
+        searchBtnMobile.onclick = function() {
+            var q = searchInputMobile ? searchInputMobile.value.trim() : '';
+            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
+            goToSearchPage(q);
+        };
+    }
+    
+    if (searchInputMobile) {
+        searchInputMobile.onkeypress = function(e) {
+            if (e.key === 'Enter') {
+                var q = this.value.trim();
+                if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
+                goToSearchPage(q);
+            }
+        };
+    }
+    
+    if (mobileSearchOverlay) {
+        mobileSearchOverlay.onclick = function(e) {
+            if (e.target === this) this.style.display = 'none';
+        };
+    }
+    
+    // Navigasi
     const navHome = document.getElementById('navHome');
     const navRandom = document.getElementById('navRandom');
     const navComic = document.getElementById('navComic');
     const navVideo34 = document.getElementById('navVideo34');
-    const logoElem = document.getElementById('logoClick');
+    const logoClick = document.getElementById('logoClick');
     
-    if (navHome) navHome.onclick = (e) => { e.preventDefault(); window.location.href = HOME_URL; };
-    if (navRandom) navRandom.onclick = (e) => { e.preventDefault(); if (allVideos.length) showRandomVideo(); };
-    if (navComic) navComic.onclick = (e) => { e.preventDefault(); window.location.href = COMIC_URL; };
-    if (navVideo34) navVideo34.onclick = (e) => { e.preventDefault(); window.open(VIDEO34_URL, '_blank'); };
-    if (logoElem) logoElem.onclick = () => { window.location.href = HOME_URL; };
-    
-    // Genre dropdown
-    const genreBtn = document.getElementById('navGenre');
-    const genreDropdown = document.getElementById('genreDropdown');
-    
-    if (genreBtn) {
-        genreBtn.addEventListener('click', (e) => {
+    if (navHome) {
+        navHome.onclick = function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            if (genreDropdown) genreDropdown.classList.toggle('show');
-        });
+            window.location.href = HOME_URL;
+        };
     }
     
-    document.addEventListener('click', (e) => {
-        if (!genreBtn?.contains(e.target) && !genreDropdown?.contains(e.target)) {
-            genreDropdown?.classList.remove('show');
-        }
-    });
-    
-    document.querySelectorAll('.genre-dropdown-content a').forEach(link => {
-        link.addEventListener('click', (e) => {
+    if (navRandom) {
+        navRandom.onclick = function(e) {
             e.preventDefault();
-            const genre = link.getAttribute('data-genre');
-            window.location.href = `https://allyoulike69.github.io/alyoulikevideo/genre.html?genre=${encodeURIComponent(genre)}`;
-        });
-    });
+            if (allVideos.length) showRandomVideo();
+        };
+    }
+    
+    if (navComic) {
+        navComic.onclick = function(e) {
+            e.preventDefault();
+            window.location.href = COMIC_URL;
+        };
+    }
+    
+    if (navVideo34) {
+        navVideo34.onclick = function(e) {
+            e.preventDefault();
+            window.open(VIDEO34_URL, '_blank');
+        };
+    }
+    
+    if (logoClick) {
+        logoClick.onclick = function() {
+            window.location.href = HOME_URL;
+        };
+    }
+    
+    // Genre Dropdown
+    const navGenre = document.getElementById('navGenre');
+    const genreDropdown = document.getElementById('genreDropdown');
+    
+    if (navGenre) {
+        navGenre.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (genreDropdown) {
+                if (genreDropdown.classList.contains('show')) {
+                    genreDropdown.classList.remove('show');
+                } else {
+                    genreDropdown.classList.add('show');
+                }
+            }
+        };
+    }
+    
+    // Tutup dropdown saat klik di luar
+    document.body.onclick = function(e) {
+        if (genreDropdown && navGenre) {
+            if (!navGenre.contains(e.target) && !genreDropdown.contains(e.target)) {
+                genreDropdown.classList.remove('show');
+            }
+        }
+    };
+    
+    // Genre links
+    var genreLinks = document.querySelectorAll('.genre-dropdown-content a');
+    for (var i = 0; i < genreLinks.length; i++) {
+        genreLinks[i].onclick = function(e) {
+            e.preventDefault();
+            var genre = this.getAttribute('data-genre');
+            window.location.href = 'https://allyoulike69.github.io/alyoulikevideo/genre.html?genre=' + encodeURIComponent(genre);
+        };
+    }
+    
+    console.log("Header events attached successfully");
 }
 
 // ==================== LOAD HEADER, FOOTER & DATA ====================
 async function loadHeader() {
     try {
-        const response = await fetch('header.html');
+        const response = await fetch('header.html?t=' + Date.now());
         const headerHtml = await response.text();
-        document.getElementById('header-placeholder').innerHTML = headerHtml;
-        // Tunggu sebentar agar DOM header benar-benar ter-render
-        setTimeout(() => {
+        const headerPlaceholder = document.getElementById('header-placeholder');
+        if (headerPlaceholder) {
+            headerPlaceholder.innerHTML = headerHtml;
+            console.log("Header loaded, attaching events...");
             attachHeaderEvents();
-        }, 100);
+        }
     } catch (error) {
         console.error('Gagal load header:', error);
     }
@@ -319,9 +376,12 @@ async function loadHeader() {
 
 async function loadFooter() {
     try {
-        const response = await fetch('footer.html');
+        const response = await fetch('footer.html?t=' + Date.now());
         const footerHtml = await response.text();
-        document.getElementById('footer-placeholder').innerHTML = footerHtml;
+        const footerPlaceholder = document.getElementById('footer-placeholder');
+        if (footerPlaceholder) {
+            footerPlaceholder.innerHTML = footerHtml;
+        }
     } catch (error) {
         console.error('Gagal load footer:', error);
     }
@@ -329,10 +389,17 @@ async function loadFooter() {
 
 async function loadVideoData() {
     try {
-        document.getElementById('featured-grid').innerHTML = '<div class="no-data-message"><i class="fa-solid fa-spinner fa-pulse"></i> Loading video gallery...</div>';
-        document.getElementById('new-videos-grid').innerHTML = '<div class="no-data-message"><i class="fa-solid fa-spinner fa-pulse"></i> Preparing video collection...</div>';
+        const featuredGrid = document.getElementById('featured-grid');
+        const newVideosGrid = document.getElementById('new-videos-grid');
         
-        const response = await fetch(DATA_URL);
+        if (featuredGrid) {
+            featuredGrid.innerHTML = '<div class="no-data-message"><i class="fa-solid fa-spinner fa-pulse"></i> Loading video gallery...</div>';
+        }
+        if (newVideosGrid) {
+            newVideosGrid.innerHTML = '<div class="no-data-message"><i class="fa-solid fa-spinner fa-pulse"></i> Preparing video collection...</div>';
+        }
+        
+        const response = await fetch(DATA_URL + '?t=' + Date.now());
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         let pages = data.pages || [];
@@ -346,8 +413,8 @@ async function loadVideoData() {
         currentFilteredByGenre = [...allVideos];
         
         if (allVideos.length === 0) {
-            document.getElementById('featured-grid').innerHTML = '<div class="no-data-message">📭 No videos available at this time.</div>';
-            document.getElementById('new-videos-grid').innerHTML = '<div class="no-data-message">📭 No videos available.</div>';
+            if (featuredGrid) featuredGrid.innerHTML = '<div class="no-data-message">📭 No videos available at this time.</div>';
+            if (newVideosGrid) newVideosGrid.innerHTML = '<div class="no-data-message">📭 No videos available.</div>';
             return;
         }
         
@@ -362,13 +429,16 @@ async function loadVideoData() {
         updatePagination();
     } catch (err) {
         console.error(err);
-        document.getElementById('featured-grid').innerHTML = `<div class="no-data-message">❌ Failed to load videos: ${err.message}</div>`;
-        document.getElementById('new-videos-grid').innerHTML = '<div class="no-data-message">Failed to load video data.</div>';
+        const featuredGrid = document.getElementById('featured-grid');
+        const newVideosGrid = document.getElementById('new-videos-grid');
+        if (featuredGrid) featuredGrid.innerHTML = `<div class="no-data-message">❌ Failed to load videos: ${err.message}</div>`;
+        if (newVideosGrid) newVideosGrid.innerHTML = '<div class="no-data-message">Failed to load video data.</div>';
     }
 }
 
 // ==================== START ====================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOM ready, initializing...");
     loadHeader();
     loadFooter();
     loadVideoData();
