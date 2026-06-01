@@ -303,8 +303,7 @@
 <div id="footer-placeholder"></div>
 
 <!-- Sosial Bar Container -->
-<div id="socialbar-container" class="socialbar-container"></div>
-<script src="https://rhubarbambassadorweep.com/8e/52/59/8e52598446ed8e4ff566499581bad509.js"></script>
+<div id="popup-container" class="popup-container"></div>
 
 
 <script>
@@ -348,7 +347,7 @@
 
     // Fungsi untuk memuat sosial bar dari file sosialbar.html
     function loadSocialBar() {
-        fetch('sosialbar.html?t=' + Date.now())
+        fetch('popup.html?t=' + Date.now())
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -356,7 +355,7 @@
                 return response.text();
             })
             .then(data => {
-                const container = document.getElementById('socialbar-container');
+                const container = document.getElementById('popup-container');
                 if (!container) return;
                 container.innerHTML = data;
                 
@@ -377,7 +376,7 @@
             })
             .catch(error => {
                 console.error('Error loading sosialbar.html:', error);
-                const container = document.getElementById('socialbar-container');
+                const container = document.getElementById('popup-container');
                 if (container) {
                     container.innerHTML = '<div style="text-align:center; padding:20px; background:#121212; border-radius:20px; border:1px solid #ff3b6f;">⚠️ Gagal memuat Social Bar. Pastikan file sosialbar.html tersedia.</div>';
                 }
