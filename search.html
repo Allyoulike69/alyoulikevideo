@@ -28,6 +28,28 @@
             padding: 0 20px;
         }
 
+        /* Banner containers style */
+        .banner-container {
+            width: 100%;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .top-banner, .middle-banner, .bottom-banner {
+            min-height: 90px;
+            background: transparent;
+        }
+
+        /* Social bar container - fixed position bottom right */
+        .socialbar-wrapper {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 300px;
+            width: auto;
+        }
+
         .search-container {
             max-width: 600px;
             margin: 30px auto 40px;
@@ -141,6 +163,7 @@
             .empty-state { padding: 40px 20px; max-width: 350px; }
             .empty-icon { font-size: 60px; }
             .empty-title { font-size: 20px; }
+            .socialbar-wrapper { bottom: 10px; right: 10px; max-width: 250px; }
         }
 
         .video-item {
@@ -223,6 +246,9 @@
 <!-- Header akan di-load dari file terpisah -->
 <div id="header-container"></div>
 
+<!-- TOP BANNER -->
+<div id="topbanner-container" class="banner-container top-banner"></div>
+
 <div class="content-wrapper">
     <div class="search-container">
         <div class="search-wrapper">
@@ -236,36 +262,164 @@
         <button id="clearSearchBtn" class="clear-search-btn"><i class="fa-solid fa-times"></i> Clear Search</button>
     </div>
     
+    <!-- MIDDLE BANNER -->
+    <div id="middlebanner-container" class="banner-container middle-banner"></div>
+    
     <div id="resultGrid" class="video-grid"></div>
     <div id="pagination" class="pagination-container"></div>
 </div>
 
+<!-- BOTTOM BANNER -->
+<div id="bottombanner-container" class="banner-container bottom-banner"></div>
+
 <!-- Footer akan di-load dari file terpisah -->
 <div id="footer-container"></div>
 
-<!-- Script to load header and footer -->
+<!-- Social Bar Container - Fixed bottom right -->
+<div id="socialbar-wrapper" class="socialbar-wrapper"></div>
+
 <script>
-    // Load header HTML + CSS dari file terpisah
+    // Fungsi untuk memuat komponen dari file eksternal
+    function loadComponent(containerId, fileUrl, isBanner = false) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error(`Container ${containerId} tidak ditemukan`);
+            return;
+        }
+        
+        fetch(fileUrl + '?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                container.innerHTML = data;
+                console.log(`✅ ${fileUrl} berhasil di-load ke ${containerId}`);
+                
+                // Eksekusi script yang ada di dalam konten
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    if (oldScript.parentNode) oldScript.remove();
+                });
+            })
+            .catch(error => {
+                console.error(`❌ Error loading ${fileUrl}:`, error);
+                if (isBanner) {
+                    container.innerHTML = `<div style="text-align:center; padding:20px; color:#ff3b6f; background:#111; border-radius:10px; margin:10px 0;">⚠️ Gagal memuat banner</div>`;
+                }
+            });
+    }
+
+    // Fungsi khusus untuk memuat sosial bar
+    function loadSocialBar() {
+        const wrapper = document.getElementById('socialbar-wrapper');
+        if (!wrapper) {
+            console.error('Social bar wrapper tidak ditemukan');
+            return;
+        }
+        
+        console.log('Mencoba memuat sosialbar.html...');
+        fetch('sosialbar.html?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                wrapper.innerHTML = data;
+                console.log('✅ sosialbar.html berhasil di-load, panjang HTML:', data.length);
+                
+                // Eksekusi semua script yang ada di sosialbar.html
+                const scripts = wrapper.querySelectorAll('script');
+                console.log(`Ditemukan ${scripts.length} script di sosialbar.html`);
+                scripts.forEach((oldScript, index) => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                        console.log(`Memuat external script ${index + 1}: ${oldScript.src}`);
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                        console.log(`Memuat inline script ${index + 1}`);
+                    }
+                    document.body.appendChild(newScript);
+                    if (oldScript.parentNode) oldScript.remove();
+                });
+            })
+            .catch(error => {
+                console.error('❌ Error loading sosialbar.html:', error);
+                wrapper.innerHTML = `<div style="background:#ff3b6f; color:white; padding:10px 18px; border-radius:50px; font-size:13px; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.3); cursor:pointer;" onclick="this.style.display='none'">
+                    <i class="fas fa-share-alt"></i> Social Bar <span style="margin-left:8px;">✕</span>
+                </div>`;
+            });
+    }
+
+    // Load Header
     fetch('search-header.html')
         .then(response => response.text())
         .then(data => {
             document.getElementById('header-container').innerHTML = data;
+            console.log('✅ Header berhasil di-load');
+            // Eksekusi script di header jika ada
+            const scripts = document.querySelectorAll('#header-container script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+                if (oldScript.parentNode) oldScript.remove();
+            });
         })
         .catch(error => {
             console.error('Error loading header:', error);
             document.getElementById('header-container').innerHTML = '<div class="main-header"><div class="top-bar"><div class="logo-area"><div class="logo-text">Allyoulike Video</div></div></div></div>';
         });
     
-    // Load footer HTML + CSS dari file terpisah
+    // Load Footer
     fetch('footer.html')
         .then(response => response.text())
         .then(data => {
             document.getElementById('footer-container').innerHTML = data;
+            console.log('✅ Footer berhasil di-load');
+            // Eksekusi script di footer jika ada
+            const scripts = document.querySelectorAll('#footer-container script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+                if (oldScript.parentNode) oldScript.remove();
+            });
         })
         .catch(error => {
             console.error('Error loading footer:', error);
             document.getElementById('footer-container').innerHTML = '<div class="main-footer"><div class="footer-text">© 2025 Allyoulike Video - All rights reserved.</div></div>';
         });
+
+    // Load Top Banner, Middle Banner, Bottom Banner
+    loadComponent('topbanner-container', 'topbanner.html', true);
+    loadComponent('middlebanner-container', 'middlebanner.html', true);
+    loadComponent('bottombanner-container', 'bottombanner.html', true);
+    
+    // Load Social Bar (diberi delay sedikit agar tidak bentrok)
+    setTimeout(() => {
+        loadSocialBar();
+    }, 300);
 </script>
 
 <!-- External JavaScript file -->
