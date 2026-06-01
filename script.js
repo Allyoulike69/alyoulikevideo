@@ -215,23 +215,54 @@ function updatePagination() {
 
 // ==================== ATTACH EVENT LISTENER HEADER ====================
 function attachHeaderEvents() {
+    // Search desktop
     const searchDesktopBtn = document.getElementById('searchBtnDesktop');
     const searchDesktopInput = document.getElementById('searchInputDesktop');
-    if (searchDesktopBtn) searchDesktopBtn.onclick = () => goToSearchPage(searchDesktopInput.value);
+    if (searchDesktopBtn) searchDesktopBtn.onclick = () => goToSearchPage(searchDesktopInput?.value);
     if (searchDesktopInput) searchDesktopInput.onkeypress = (e) => { if (e.key === 'Enter') goToSearchPage(e.target.value); };
     
+    // Search mobile
     const mobileIcon = document.getElementById('searchIconMobile');
     const mobileOverlay = document.getElementById('mobileSearchOverlay');
     const closeSearch = document.getElementById('closeSearchBtn');
     const mobileSearchBtn = document.getElementById('searchBtnMobile');
     const mobileSearchInput = document.getElementById('searchInputMobile');
     
-    if (mobileIcon) mobileIcon.onclick = () => { mobileOverlay.style.display = 'block'; setTimeout(() => mobileSearchInput?.focus(), 100); };
-    if (closeSearch) closeSearch.onclick = () => { mobileOverlay.style.display = 'none'; if (mobileSearchInput) mobileSearchInput.value = ''; };
-    if (mobileSearchBtn) mobileSearchBtn.onclick = () => { const q = mobileSearchInput.value.trim(); mobileOverlay.style.display = 'none'; goToSearchPage(q); };
-    if (mobileSearchInput) mobileSearchInput.onkeypress = (e) => { if (e.key === 'Enter') { const q = e.target.value.trim(); mobileOverlay.style.display = 'none'; goToSearchPage(q); } };
-    if (mobileOverlay) mobileOverlay.addEventListener('click', (e) => { if (e.target === mobileOverlay) mobileOverlay.style.display = 'none'; });
+    if (mobileIcon) {
+        mobileIcon.onclick = () => { 
+            if (mobileOverlay) mobileOverlay.style.display = 'block'; 
+            setTimeout(() => mobileSearchInput?.focus(), 100); 
+        };
+    }
+    if (closeSearch) {
+        closeSearch.onclick = () => { 
+            if (mobileOverlay) mobileOverlay.style.display = 'none'; 
+            if (mobileSearchInput) mobileSearchInput.value = ''; 
+        };
+    }
+    if (mobileSearchBtn) {
+        mobileSearchBtn.onclick = () => { 
+            const q = mobileSearchInput?.value.trim(); 
+            if (mobileOverlay) mobileOverlay.style.display = 'none'; 
+            goToSearchPage(q); 
+        };
+    }
+    if (mobileSearchInput) {
+        mobileSearchInput.onkeypress = (e) => { 
+            if (e.key === 'Enter') { 
+                const q = e.target.value.trim(); 
+                if (mobileOverlay) mobileOverlay.style.display = 'none'; 
+                goToSearchPage(q); 
+            } 
+        };
+    }
+    if (mobileOverlay) {
+        mobileOverlay.addEventListener('click', (e) => { 
+            if (e.target === mobileOverlay) mobileOverlay.style.display = 'none'; 
+        });
+    }
     
+    // Navigation
     const navHome = document.getElementById('navHome');
     const navRandom = document.getElementById('navRandom');
     const navComic = document.getElementById('navComic');
@@ -244,6 +275,7 @@ function attachHeaderEvents() {
     if (navVideo34) navVideo34.onclick = (e) => { e.preventDefault(); window.open(VIDEO34_URL, '_blank'); };
     if (logoElem) logoElem.onclick = () => { window.location.href = HOME_URL; };
     
+    // Genre dropdown
     const genreBtn = document.getElementById('navGenre');
     const genreDropdown = document.getElementById('genreDropdown');
     
@@ -251,7 +283,7 @@ function attachHeaderEvents() {
         genreBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            genreDropdown.classList.toggle('show');
+            if (genreDropdown) genreDropdown.classList.toggle('show');
         });
     }
     
@@ -276,7 +308,10 @@ async function loadHeader() {
         const response = await fetch('header.html');
         const headerHtml = await response.text();
         document.getElementById('header-placeholder').innerHTML = headerHtml;
-        attachHeaderEvents();
+        // Tunggu sebentar agar DOM header benar-benar ter-render
+        setTimeout(() => {
+            attachHeaderEvents();
+        }, 100);
     } catch (error) {
         console.error('Gagal load header:', error);
     }
