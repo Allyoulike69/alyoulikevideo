@@ -245,20 +245,27 @@
             font-size: 1rem;
         }
 
-        /* Style untuk container sosial bar */
-        .socialbar-container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 20px auto;
-            padding: 0 24px;
+        /* PERBAIKAN: Style untuk container sosial bar - FIXED POSITION */
+        .socialbar-wrapper {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: auto;
+            max-width: 300px;
         }
         
-        @media (max-width: 768px) {
-            .socialbar-container {
-                padding: 0 16px;
-            }
+        .socialbar-wrapper iframe,
+        .socialbar-wrapper div[class*="social"] {
+            display: block;
+        }
+        
+        /* Hapus style lama yang membatasi */
+        .socialbar-container {
+            display: none; /* Sembunyikan container lama */
         }
     </style>
+    <!-- Pop under code tetap di sini tidak masalah -->
     <script src="https://rhubarbambassadorweep.com/8e/52/59/8e52598446ed8e4ff566499581bad509.js"></script>
 </head>
 <body>
@@ -302,6 +309,9 @@
 
 <div id="footer-placeholder"></div>
 
+<!-- PERBAIKAN: Container sosial bar dengan posisi fixed -->
+<div id="socialbar-wrapper" class="socialbar-wrapper"></div>
+
 <script>
     // Fungsi untuk memuat konten dari file eksternal ke dalam container
     function loadComponent(containerId, fileUrl) {
@@ -341,6 +351,53 @@
             });
     }
 
+    // PERBAIKAN: Fungsi untuk memuat sosial bar dengan posisi fixed
+    function loadSocialBar() {
+        console.log('Mencoba memuat sosialbar.html...');
+        fetch('sosialbar.html?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                const wrapper = document.getElementById('socialbar-wrapper');
+                if (!wrapper) {
+                    console.error('Wrapper sosial bar tidak ditemukan');
+                    return;
+                }
+                wrapper.innerHTML = data;
+                console.log('Social bar HTML berhasil dimuat, panjang HTML:', data.length);
+                
+                // Jalankan semua script yang ada di dalam sosialbar.html
+                const scripts = wrapper.querySelectorAll('script');
+                console.log('Jumlah script yang ditemukan:', scripts.length);
+                scripts.forEach((oldScript, index) => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                        console.log(`Memuat script external ${index + 1}:`, oldScript.src);
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                        console.log(`Memuat script inline ${index + 1}`);
+                    }
+                    document.body.appendChild(newScript);
+                    if (oldScript.parentNode) oldScript.remove();
+                });
+                
+                // Debug: cek apakah ada elemen yang terlihat
+                console.log('Isi wrapper setelah load:', wrapper.innerHTML.substring(0, 200));
+            })
+            .catch(error => {
+                console.error('Error loading sosialbar.html:', error);
+                const wrapper = document.getElementById('socialbar-wrapper');
+                if (wrapper) {
+                    wrapper.innerHTML = '<div style="background:#ff3b6f; color:white; padding:12px 20px; border-radius:50px; font-size:14px; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.3);">⚠️ Gagal memuat Social Bar</div>';
+                }
+            });
+    }
+
     // Memuat Top Banner, Middle Banner, Bottom Banner, Header, dan Footer
     loadComponent('topbanner-container', 'topbanner.html');
     loadComponent('middlebanner-container', 'middlebanner.html');
@@ -348,9 +405,13 @@
     loadComponent('header-placeholder', 'header.html');
     loadComponent('footer-placeholder', 'footer.html');
     
+    // Memuat sosial bar dari file sosialbar.html
+    // Delay sedikit agar tidak bentrok dengan load lain
+    setTimeout(() => {
+        loadSocialBar();
+    }, 500);
 </script>
 <script src="script.js"></script>
-    <script src="https://rhubarbambassadorweep.com/51/51/18/515118858cb0e87294665da7b1f2d1c0.js"></script>
 
 </body>
 </html>
