@@ -19,8 +19,6 @@
         }
 
         #main-wrapper { 
-            max-width: 1200px; 
-            margin: 30px auto; 
             padding: 0 20px; 
             width: 100%;
             flex: 1;
@@ -259,6 +257,14 @@
             .video-info-container { padding: 15px; }
             .genre-tag { padding: 4px 12px; font-size: 11px; }
         }
+
+        /* CSS untuk sosialbar - ditempatkan di pojok kanan bawah */
+        #sosialbar-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
@@ -266,15 +272,21 @@
 <div id="header-placeholder"></div>
 
 <div id="main-wrapper">
+    <!-- TOP BANNER -->
+    <div id="topbanner-container" class="top-banner-wrapper"></div>
+
     <div id="videoInfoContainer" class="video-info-container">
         <div style="text-align: center; padding: 20px;">
             <i class="fa-solid fa-spinner fa-pulse"></i> Memuat data...
         </div>
     </div>
-
     <div class="video-section">
         <div id="videoArea"></div>
     </div>
+
+     <!-- MIDDLE BANNER -->
+    <div id="middlebanner-container" class="middle-banner-wrapper"></div>
+
 
     <div class="slider-section">
         <div class="slider-header"><i class="fa-solid fa-star"></i> NEW UPDATE</div>
@@ -287,9 +299,15 @@
         <div class="slider-container"><div id="recommendTrack" class="slider-track"></div></div>
         <div class="nav-btns"><button id="recPrevBtn" disabled><i class="fa-solid fa-chevron-left"></i> PREV</button><button id="recNextBtn">NEXT <i class="fa-solid fa-chevron-right"></i></button></div>
     </div>
+
+    <!-- BOTTOM BANNER -->
+    <div id="bottombanner-container" class="bottom-banner-wrapper"></div>
 </div>
 
 <div id="footer-placeholder"></div>
+
+<!-- Container untuk sosialbar -->
+<div id="sosialbar-container"></div>
 
 <!-- VIDEO ID - DIPERBAIKI: menggunakan window.VIDEO_IDS -->
 <script>
@@ -300,6 +318,67 @@
     ];
     console.log("VIDEO_IDS didefinisikan:", window.VIDEO_IDS);
     console.log("CURRENT_TITLE force:", window.CURRENT_TITLE);
+</script>
+
+<!-- LOAD BANNER -->
+<script>
+    // Fungsi untuk memuat banner dari file HTML
+    function loadBanner(containerId, filePath) {
+        fetch(filePath)
+            .then(response => response.text())
+            .then(data => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = data;
+                    console.log(`✅ ${filePath} berhasil di-load ke ${containerId}`);
+                    
+                    // Eksekusi script yang ada di dalam banner
+                    const scripts = container.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;
+                        } else {
+                            newScript.textContent = oldScript.textContent;
+                        }
+                        document.body.appendChild(newScript);
+                    });
+                }
+            })
+            .catch(error => console.error(`Error loading ${filePath}:`, error));
+    }
+
+    // Load 3 banner saja: top, middle, bottom
+    loadBanner('topbanner-container', 'topbanner.html');
+    loadBanner('middlebanner-container', 'middlebanner.html');
+    loadBanner('bottombanner-container', 'bottombanner.html');
+</script>
+
+<!-- LOAD SOSIALBAR -->
+<script>
+    // Load sosialbar.html ke container
+    fetch('sosialbar.html')
+        .then(response => response.text())
+        .then(data => {
+            const container = document.getElementById('sosialbar-container');
+            if (container) {
+                container.innerHTML = data;
+                console.log('✅ sosialbar.html berhasil di-load');
+                
+                // Eksekusi script yang ada di sosialbar
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading sosialbar.html:', error));
 </script>
 
 <!-- Cuma 1 file JS sekarang -->
