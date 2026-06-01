@@ -257,6 +257,14 @@
             .video-info-container { padding: 15px; }
             .genre-tag { padding: 4px 12px; font-size: 11px; }
         }
+
+        /* CSS untuk sosialbar - ditempatkan di pojok kanan bawah */
+        #sosialbar-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
@@ -297,6 +305,9 @@
 </div>
 
 <div id="footer-placeholder"></div>
+
+<!-- Container untuk sosialbar -->
+<div id="sosialbar-container"></div>
 
 <!-- VIDEO ID -->
 <script>
@@ -341,6 +352,33 @@
     loadBanner('topbanner-container', 'topbanner.html');
     loadBanner('middlebanner-container', 'middlebanner.html');
     loadBanner('bottombanner-container', 'bottombanner.html');
+</script>
+
+<!-- LOAD SOSIALBAR -->
+<script>
+    // Load sosialbar.html ke container
+    fetch('sosialbar.html')
+        .then(response => response.text())
+        .then(data => {
+            const container = document.getElementById('sosialbar-container');
+            if (container) {
+                container.innerHTML = data;
+                console.log('✅ sosialbar.html berhasil di-load');
+                
+                // Eksekusi script yang ada di sosialbar
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading sosialbar.html:', error));
 </script>
 
 <!-- Cuma 1 file JS sekarang -->
