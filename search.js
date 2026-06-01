@@ -271,7 +271,7 @@ function initializeHeaderEvents() {
             e.preventDefault();
             const genre = link.getAttribute('data-genre');
             // REDIRECT KE GENRE.HTML
-            window.location.href = `https://allyoulikevideo.neocities.org/genre.html?genre=${encodeURIComponent(genre)}`;
+            window.location.href = `https://allyoulike69.github.io/alyoulikevideo/genre.html?genre=${encodeURIComponent(genre)}`;
         };
         link._listener = listener;
         link.addEventListener('click', listener);
