@@ -264,7 +264,6 @@
 
 <div id="header-placeholder"></div>
 
-
 <div class="mobile-search-overlay" id="mobileSearchOverlay">
     <div class="mobile-search-container">
         <input type="text" id="searchInputMobile" placeholder="Search videos, titles..." autocomplete="off">
@@ -303,8 +302,7 @@
 <div id="footer-placeholder"></div>
 
 <!-- Sosial Bar Container -->
-<div id="popup-container" class="popup-container"></div>
-
+<div id="socialbar-container" class="socialbar-container"></div>
 
 <script>
     // Fungsi untuk memuat konten dari file eksternal ke dalam container
@@ -347,7 +345,7 @@
 
     // Fungsi untuk memuat sosial bar dari file sosialbar.html
     function loadSocialBar() {
-        fetch('popup.html?t=' + Date.now())
+        fetch('sosialbar.html?t=' + Date.now())
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -355,7 +353,7 @@
                 return response.text();
             })
             .then(data => {
-                const container = document.getElementById('popup-container');
+                const container = document.getElementById('socialbar-container');
                 if (!container) return;
                 container.innerHTML = data;
                 
@@ -376,7 +374,7 @@
             })
             .catch(error => {
                 console.error('Error loading sosialbar.html:', error);
-                const container = document.getElementById('popup-container');
+                const container = document.getElementById('socialbar-container');
                 if (container) {
                     container.innerHTML = '<div style="text-align:center; padding:20px; background:#121212; border-radius:20px; border:1px solid #ff3b6f;">⚠️ Gagal memuat Social Bar. Pastikan file sosialbar.html tersedia.</div>';
                 }
