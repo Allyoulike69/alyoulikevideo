@@ -354,7 +354,7 @@ async function loadData() {
             document.querySelectorAll('.genre-tag').forEach(tag => {
                 tag.addEventListener('click', () => {
                     const genre = tag.getAttribute('data-genre');
-                    window.location.href = `https://allyoulikevideo.neocities.org/genre.html?genre=${encodeURIComponent(genre)}`;
+                    window.location.href = `https://allyoulike69.github.io/alyoulikevideo/genre.html?genre=${encodeURIComponent(genre)}`;
                 });
             });
         }
