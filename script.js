@@ -212,120 +212,49 @@ function updatePagination() {
     container.appendChild(createBtn('»', () => { if (currentPageNum < totalPages) goToVideoPage(totalPages); }, currentPageNum === totalPages));
 }
 
-// ==================== ATTACH EVENT LISTENER HEADER ====================
-function attachHeaderEvents() {
-    console.log("Attaching header events...");
-    
-    // Search Desktop
-    const searchBtnDesktop = document.getElementById('searchBtnDesktop');
-    const searchInputDesktop = document.getElementById('searchInputDesktop');
-    
-    if (searchBtnDesktop) {
-        searchBtnDesktop.onclick = function() {
-            if (searchInputDesktop) goToSearchPage(searchInputDesktop.value);
-        };
-    }
-    
-    if (searchInputDesktop) {
-        searchInputDesktop.onkeypress = function(e) {
-            if (e.key === 'Enter') goToSearchPage(this.value);
-        };
-    }
-    
-    // Search Mobile
-    const searchIconMobile = document.getElementById('searchIconMobile');
-    const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
-    const closeSearchBtn = document.getElementById('closeSearchBtn');
-    const searchBtnMobile = document.getElementById('searchBtnMobile');
-    const searchInputMobile = document.getElementById('searchInputMobile');
-    
-    if (searchIconMobile) {
-        searchIconMobile.onclick = function() {
-            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'block';
-            setTimeout(function() { if (searchInputMobile) searchInputMobile.focus(); }, 100);
-        };
-    }
-    
-    if (closeSearchBtn) {
-        closeSearchBtn.onclick = function() {
-            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
-            if (searchInputMobile) searchInputMobile.value = '';
-        };
-    }
-    
-    if (searchBtnMobile) {
-        searchBtnMobile.onclick = function() {
-            var q = searchInputMobile ? searchInputMobile.value.trim() : '';
-            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
-            goToSearchPage(q);
-        };
-    }
-    
-    if (searchInputMobile) {
-        searchInputMobile.onkeypress = function(e) {
-            if (e.key === 'Enter') {
-                var q = this.value.trim();
-                if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
-                goToSearchPage(q);
-            }
-        };
-    }
-    
-    if (mobileSearchOverlay) {
-        mobileSearchOverlay.onclick = function(e) {
-            if (e.target === this) this.style.display = 'none';
-        };
-    }
-    
-    // Navigasi
-    const navHome = document.getElementById('navHome');
-    const navRandom = document.getElementById('navRandom');
-    const navComic = document.getElementById('navComic');
-    const navVideo34 = document.getElementById('navVideo34');
-    const logoClick = document.getElementById('logoClick');
-    
-    if (navHome) {
-        navHome.onclick = function(e) {
+// ==================== EVENT DELEGATION (DIPERBAIKI) ====================
+function setupGlobalEventDelegation() {
+    // Event delegation untuk semua klik di document
+    document.body.addEventListener('click', function(e) {
+        // HOME button
+        if (e.target.closest('#navHome')) {
             e.preventDefault();
             window.location.href = HOME_URL;
-        };
-    }
-    
-    if (navRandom) {
-        navRandom.onclick = function(e) {
+            return;
+        }
+        
+        // RANDOM button
+        if (e.target.closest('#navRandom')) {
             e.preventDefault();
             if (allVideos.length) showRandomVideo();
-        };
-    }
-    
-    if (navComic) {
-        navComic.onclick = function(e) {
+            return;
+        }
+        
+        // COMIC button
+        if (e.target.closest('#navComic')) {
             e.preventDefault();
             window.location.href = COMIC_URL;
-        };
-    }
-    
-    if (navVideo34) {
-        navVideo34.onclick = function(e) {
+            return;
+        }
+        
+        // VIDEO34 button
+        if (e.target.closest('#navVideo34')) {
             e.preventDefault();
             window.open(VIDEO34_URL, '_blank');
-        };
-    }
-    
-    if (logoClick) {
-        logoClick.onclick = function() {
+            return;
+        }
+        
+        // LOGO click
+        if (e.target.closest('#logoClick')) {
             window.location.href = HOME_URL;
-        };
-    }
-    
-    // Genre Dropdown
-    const navGenre = document.getElementById('navGenre');
-    const genreDropdown = document.getElementById('genreDropdown');
-    
-    if (navGenre) {
-        navGenre.onclick = function(e) {
+            return;
+        }
+        
+        // GENRE DROPDOWN toggle
+        if (e.target.closest('#navGenre')) {
             e.preventDefault();
             e.stopPropagation();
+            const genreDropdown = document.getElementById('genreDropdown');
             if (genreDropdown) {
                 if (genreDropdown.classList.contains('show')) {
                     genreDropdown.classList.remove('show');
@@ -333,29 +262,96 @@ function attachHeaderEvents() {
                     genreDropdown.classList.add('show');
                 }
             }
-        };
-    }
+            return;
+        }
+        
+        // Genre links di dropdown
+        if (e.target.closest('.genre-dropdown-content a')) {
+            e.preventDefault();
+            const genre = e.target.closest('.genre-dropdown-content a').getAttribute('data-genre');
+            if (genre) {
+                window.location.href = 'https://allyoulike69.github.io/alyoulikevideo/genre.html?genre=' + encodeURIComponent(genre);
+            }
+            return;
+        }
+    });
     
-    // Tutup dropdown saat klik di luar
-    document.body.onclick = function(e) {
+    // Event delegation untuk SEARCH (keypress)
+    document.body.addEventListener('keypress', function(e) {
+        // Search desktop
+        const searchInputDesktop = document.getElementById('searchInputDesktop');
+        if (e.target === searchInputDesktop && e.key === 'Enter') {
+            if (searchInputDesktop) goToSearchPage(searchInputDesktop.value);
+        }
+        
+        // Search mobile
+        const searchInputMobile = document.getElementById('searchInputMobile');
+        if (e.target === searchInputMobile && e.key === 'Enter') {
+            const q = searchInputMobile.value.trim();
+            const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
+            goToSearchPage(q);
+        }
+    });
+    
+    // Event delegation untuk klik tombol search
+    document.body.addEventListener('click', function(e) {
+        // Search Desktop button
+        if (e.target.closest('#searchBtnDesktop')) {
+            const searchInputDesktop = document.getElementById('searchInputDesktop');
+            if (searchInputDesktop) goToSearchPage(searchInputDesktop.value);
+            return;
+        }
+        
+        // Search Mobile icon (buka overlay)
+        if (e.target.closest('#searchIconMobile')) {
+            const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'block';
+            setTimeout(function() {
+                const searchInputMobile = document.getElementById('searchInputMobile');
+                if (searchInputMobile) searchInputMobile.focus();
+            }, 100);
+            return;
+        }
+        
+        // Close search button
+        if (e.target.closest('#closeSearchBtn')) {
+            const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+            const searchInputMobile = document.getElementById('searchInputMobile');
+            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
+            if (searchInputMobile) searchInputMobile.value = '';
+            return;
+        }
+        
+        // Search Mobile button
+        if (e.target.closest('#searchBtnMobile')) {
+            const searchInputMobile = document.getElementById('searchInputMobile');
+            const q = searchInputMobile ? searchInputMobile.value.trim() : '';
+            const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+            if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
+            goToSearchPage(q);
+            return;
+        }
+    });
+    
+    // Tutup dropdown saat klik di luar (dengan event delegation)
+    document.body.addEventListener('click', function(e) {
+        const genreDropdown = document.getElementById('genreDropdown');
+        const navGenre = document.getElementById('navGenre');
         if (genreDropdown && navGenre) {
             if (!navGenre.contains(e.target) && !genreDropdown.contains(e.target)) {
                 genreDropdown.classList.remove('show');
             }
         }
-    };
+        
+        // Tutup mobile search overlay saat klik di luar
+        const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+        if (mobileSearchOverlay && e.target === mobileSearchOverlay) {
+            mobileSearchOverlay.style.display = 'none';
+        }
+    });
     
-    // Genre links
-    var genreLinks = document.querySelectorAll('.genre-dropdown-content a');
-    for (var i = 0; i < genreLinks.length; i++) {
-        genreLinks[i].onclick = function(e) {
-            e.preventDefault();
-            var genre = this.getAttribute('data-genre');
-            window.location.href = 'https://allyoulike69.github.io/alyoulikevideo/genre.html?genre=' + encodeURIComponent(genre);
-        };
-    }
-    
-    console.log("Header events attached successfully");
+    console.log("Global event delegation setup complete");
 }
 
 // ==================== LOAD HEADER, FOOTER & DATA ====================
@@ -366,8 +362,8 @@ async function loadHeader() {
         const headerPlaceholder = document.getElementById('header-placeholder');
         if (headerPlaceholder) {
             headerPlaceholder.innerHTML = headerHtml;
-            console.log("Header loaded, attaching events...");
-            attachHeaderEvents();
+            console.log("Header loaded successfully");
+            // Tidak perlu attachHeaderEvents lagi karena sudah pakai event delegation!
         }
     } catch (error) {
         console.error('Gagal load header:', error);
@@ -439,6 +435,11 @@ async function loadVideoData() {
 // ==================== START ====================
 document.addEventListener("DOMContentLoaded", function() {
     console.log("DOM ready, initializing...");
+    
+    // Setup global event delegation (hanya sekali, akan tetap bekerja!)
+    setupGlobalEventDelegation();
+    
+    // Load komponen
     loadHeader();
     loadFooter();
     loadVideoData();
