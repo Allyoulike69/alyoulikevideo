@@ -1,9 +1,9 @@
 // search.js
 // Allyoulike Video - Main JavaScript File
 
-const DATA_URL = "https://allyoulike69.github.io/alyoulikevideo/p/daftar.json";
-const BASE_URL = "https://allyoulike69.github.io/alyoulikevideo/p/";
-const HOME_URL = "https://allyoulike69.github.io/alyoulikevideo/";
+const DATA_URL = "https://alyoulikevideo.pages.dev/p/daftar.json";
+const BASE_URL = "https://alyoulikevideo.pages.dev/p/";
+const HOME_URL = "https://alyoulikevideo.pages.dev/";
 const COMIC_URL = "https://allyoulikecomic.neocities.org/";
 const VIDEO34_URL = "https://www.google.com";
 const ITEMS_PER_PAGE = 24;
@@ -271,7 +271,7 @@ function initializeHeaderEvents() {
             e.preventDefault();
             const genre = link.getAttribute('data-genre');
             // REDIRECT KE GENRE.HTML
-            window.location.href = `https://allyoulike69.github.io/alyoulikevideo/genre.html?genre=${encodeURIComponent(genre)}`;
+            window.location.href = `https://alyoulikevideo.pages.dev/genre.html?genre=${encodeURIComponent(genre)}`;
         };
         link._listener = listener;
         link.addEventListener('click', listener);
