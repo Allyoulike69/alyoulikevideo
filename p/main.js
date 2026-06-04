@@ -42,12 +42,12 @@ function initVideoPlayer(containerId, videoIds) {
 }
 
 // ==================== KONSTANTA ====================
-const DATA_URL = "https://allyoulike69.github.io/alyoulikevideo/p/daftar.json";
-const BASE_URL = "https://allyoulike69.github.io/alyoulikevideo/p/";
-const HOME_URL = "https://allyoulike69.github.io/alyoulikevideo/";
+const DATA_URL = "https://alyoulikevideo.pages.dev/p/daftar.json";
+const BASE_URL = "https://alyoulikevideo.pages.dev/p/";
+const HOME_URL = "https://alyoulikevideo.pages.dev/";
 const COMIC_URL = "https://allyoulikecomic.neocities.org/";
 const VIDEO34_URL = "https://www.google.com";
-const SEARCH_PAGE_URL = "https://allyoulike69.github.io/alyoulikevideo/search";
+const SEARCH_PAGE_URL = "https://alyoulikevideo.pages.dev/search";
 
 let allVideos = [];
 
@@ -252,7 +252,7 @@ window.attachHeaderEvents = function() {
     document.addEventListener('click', (e) => {
         if(genreDropdown && genreDropdown.contains(e.target) && e.target.getAttribute('data-genre')) {
             const genre = e.target.getAttribute('data-genre');
-            window.location.href = `https://allyoulikevideo.neocities.org/genre.html?genre=${encodeURIComponent(genre)}`;
+            window.location.href = `https://alyoulikevideo.pages.dev/genre.html?genre=${encodeURIComponent(genre)}`;
             genreDropdown.classList.remove('show');
         }
     });
