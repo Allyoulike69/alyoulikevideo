@@ -3,7 +3,7 @@ const DATA_URL = "https://alyoulikevideo.pages.dev/p/daftar.json";
 const BASE_URL = "https://alyoulikevideo.pages.dev/p/";
 const HOME_URL = "https://alyoulikevideo.pages.dev/";
 const COMIC_URL = "https://allyoulikecomic.neocities.org/";
-const VIDEO34_URL = "https://www.google.com";
+const VIDEO34_URL = "https://alyoulikevideo.pages.dev/comingsoon.html";
 const SEARCH_PAGE_URL = "https://alyoulikevideo.pages.dev/search";
 
 // ==================== VARIABEL GLOBAL ====================
