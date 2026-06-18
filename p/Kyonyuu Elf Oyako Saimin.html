@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>Allyoulike Video - Watch Episode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #main-wrapper { 
+            padding: 0 20px; 
+            width: 100%;
+            flex: 1;
+        }
+
+        .video-info-container {
+            background: linear-gradient(135deg, #111, #1a1a1a);
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #ff3b6f;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .video-info-container h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #ffbc6e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .video-info-container h1 i {
+            color: #ff3b6f;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            font-size: 1.8rem;
+        }
+        .genre-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 0;
+        }
+        .genre-label {
+            font-size: 13px;
+            color: #aaa;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .genre-tag {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 30px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .genre-tag i { font-size: 11px; color: #ff3b6f; }
+        .genre-tag:hover {
+            background: #ff3b6f;
+            border-color: #ff3b6f;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .genre-tag:hover i { color: white; }
+
+        .video-section { margin-bottom: 40px; }
+        .episode-container { 
+            margin-bottom: 30px; 
+            background: #111;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #222;
+        }
+        .ep-label { 
+            display: inline-block; 
+            padding: 6px 18px; 
+            background: #ff3b6f; 
+            color: #fff; 
+            font-weight: bold; 
+            border-radius: 20px; 
+            margin-bottom: 15px; 
+            font-size: 13px;
+        }
+        .video-player-wrapper {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .v-frame { 
+            position: relative; 
+            width: 100%; 
+            padding-bottom: 56.25%;
+            height: 0; 
+            background: #000;
+        }
+        .v-frame iframe { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            border: 0;
+            border-radius: 8px;
+        }
+
+        .slider-section {
+            margin-top: 50px;
+            border-top: 1px solid #333;
+            padding-top: 25px;
+        }
+        .slider-header { 
+            color: #ff3b6f; 
+            font-size: 20px; 
+            font-weight: bold; 
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider-container { 
+            overflow-x: hidden;
+            width: 100%; 
+            padding: 10px 0 20px 0;
+        }
+        .slider-track { 
+            display: flex; 
+            transition: transform 0.4s ease-out; 
+            gap: 15px; 
+        }
+        .slider-item {
+            flex: 0 0 calc(25% - 11.25px);
+            background: #121212; 
+            border-radius: 12px; 
+            border: 1px solid #2a2a2a;
+            overflow: hidden; 
+            cursor: pointer;
+            transition: transform 0.25s;
+        }
+        .slider-item:hover {
+            transform: translateY(-8px);
+            border-color: #ff3b6f;
+        }
+        
+        .slider-item:hover .slider-play-overlay {
+            background: #ff3b6f;
+            transform: translate(-50%, -50%) scale(1.05);
+            border-color: white;
+        }
+        .slider-thumb {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+        .slider-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slider-play-overlay {
+            
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 26px;
+            transition: 0.2s;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        .badge-new {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #ff3b6f;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .slider-item .title-post {
+            padding: 10px; 
+            font-size: 12px; 
+            font-weight: 600;
+            color: #eee;
+        }
+
+        .nav-btns { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 10px; 
+            gap: 10px;
+        }
+        .nav-btns button {
+            background: #1c1c1c; 
+            color: #ff3b6f; 
+            border: 1px solid #333;
+            padding: 10px 25px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 30px;
+        }
+        .nav-btns button:hover:not(:disabled) {
+            background: #ff3b6f;
+            color: white;
+        }
+        .nav-btns button:disabled { 
+            border-color: #444; 
+            color: #444; 
+            cursor: not-allowed; 
+        }
+
+        @media (max-width: 900px) and (min-width: 601px) {
+            .slider-item { flex: 0 0 calc(33.333% - 10px); }
+        }
+        @media (max-width: 600px) {
+            .slider-item { flex: 0 0 calc(50% - 7.5px); }
+            .video-info-container h1 { font-size: 1.4rem; }
+            .video-info-container h1 i { font-size: 1.2rem; }
+            .video-info-container { padding: 15px; }
+            .genre-tag { padding: 4px 12px; font-size: 11px; }
+        }
+
+        /* CSS untuk sosialbar - ditempatkan di pojok kanan bawah */
+        #sosialbar-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<div id="main-wrapper">
+    <!-- TOP BANNER -->
+    <div id="topbanner-container" class="top-banner-wrapper"></div>
+
+    <div id="videoInfoContainer" class="video-info-container">
+        <div style="text-align: center; padding: 20px;">
+            <i class="fa-solid fa-spinner fa-pulse"></i> Memuat data...
+        </div>
+    </div>
+    <div class="video-section">
+        <div id="videoArea"></div>
+    </div>
+
+     <!-- MIDDLE BANNER -->
+    <div id="middlebanner-container" class="middle-banner-wrapper"></div>
+
+
+    <div class="slider-section">
+        <div class="slider-header"><i class="fa-solid fa-star"></i> NEW UPDATE</div>
+        <div class="slider-container"><div id="newUpdateTrack" class="slider-track"></div></div>
+        <div class="nav-btns"><button id="newPrevBtn" disabled><i class="fa-solid fa-chevron-left"></i> PREV</button><button id="newNextBtn">NEXT <i class="fa-solid fa-chevron-right"></i></button></div>
+    </div>
+
+    <div class="slider-section">
+        <div class="slider-header"><i class="fa-solid fa-fire-flame-curved"></i> RECOMMENDATIONS FOR YOU</div>
+        <div class="slider-container"><div id="recommendTrack" class="slider-track"></div></div>
+        <div class="nav-btns"><button id="recPrevBtn" disabled><i class="fa-solid fa-chevron-left"></i> PREV</button><button id="recNextBtn">NEXT <i class="fa-solid fa-chevron-right"></i></button></div>
+    </div>
+
+    <!-- BOTTOM BANNER -->
+    <div id="bottombanner-container" class="bottom-banner-wrapper"></div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<!-- Container untuk sosialbar -->
+<div id="sosialbar-container"></div>
+
+<!-- VIDEO ID -->
+<script>
+    window.CURRENT_TITLE = "Koushoku no Chuugi Kunoichi Botan";
+    
+    window.VIDEO_IDS = [
+      "GMHALWsTk3",
+      "AqCZzhi0D"
+    ];
+    console.log("VIDEO_IDS didefinisikan:", window.VIDEO_IDS);
+    console.log("CURRENT_TITLE force:", window.CURRENT_TITLE);
+</script>
+
+<!-- LOAD BANNER -->
+<script>
+    // Fungsi untuk memuat banner dari file HTML
+    function loadBanner(containerId, filePath) {
+        fetch(filePath)
+            .then(response => response.text())
+            .then(data => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = data;
+                    console.log(`✅ ${filePath} berhasil di-load ke ${containerId}`);
+                    
+                    // Eksekusi script yang ada di dalam banner
+                    const scripts = container.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;
+                        } else {
+                            newScript.textContent = oldScript.textContent;
+                        }
+                        document.body.appendChild(newScript);
+                    });
+                }
+            })
+            .catch(error => console.error(`Error loading ${filePath}:`, error));
+    }
+
+    // Load 3 banner saja: top, middle, bottom
+    loadBanner('topbanner-container', 'topbanner.html');
+    loadBanner('middlebanner-container', 'middlebanner.html');
+    loadBanner('bottombanner-container', 'bottombanner.html');
+</script>
+
+<!-- LOAD SOSIALBAR -->
+<script>
+    // Load sosialbar.html ke container
+    fetch('sosialbar.html')
+        .then(response => response.text())
+        .then(data => {
+            const container = document.getElementById('sosialbar-container');
+            if (container) {
+                container.innerHTML = data;
+                console.log('✅ sosialbar.html berhasil di-load');
+                
+                // Eksekusi script yang ada di sosialbar
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading sosialbar.html:', error));
+</script>
+
+<!-- Cuma 1 file JS sekarang -->
+<script src="main.js"></script>
+
+<!-- LOAD HEADER & FOOTER -->
+<script>
+    fetch('header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+            if (typeof attachHeaderEvents === 'function') {
+                attachHeaderEvents();
+            }
+        })
+        .catch(error => console.error('Error loading header:', error));
+    
+    fetch('footer.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('footer-placeholder').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading footer:', error));
+</script>
+
+</body>
+</html>
