@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+    /* HEADER CSS */
+    .main-header {
+        background: #0a0a0a;
+        padding: 10px 10px;
+        width: 100%;
+        position: relative;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .logo-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .logo-icon {
+        width: 150px;
+        height: 70px;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .logo-icon:hover {
+        transform: scale(1.05);
+        border-color: #ff5e7c;
+    }
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* SEARCH DESKTOP */
+    .desktop-search-wrapper { display: block; }
+    .search-panel-desktop {
+        display: flex;
+        background: #6d6a6a;
+        border: 1px solid #444;
+    }
+    .search-panel-desktop input {
+        background: transparent;
+        border: none;
+        padding: 8px;
+        color: white;
+        outline: none;
+        width: 250px;
+        height: 31px;
+        line-height: normal;
+        font-size: 14px;
+        font-weight: 400;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+    .search-panel-desktop input::placeholder { color: #888; }
+    .search-panel-desktop button {
+        background: #a200f9;
+        border: none;
+        color: #ffffff;
+        cursor: pointer;
+        padding: 0px 10px;
+        font-size: 16px;
+        font-weight: 400;
+        font-family: "Segoe UI", Arial, sans-serif;
+        line-height: normal;
+    }
+    .search-panel-desktop button i { font-size: 16px; }
+    
+    .search-icon-mobile {
+        display: none;
+        background: none;
+        border: none;
+        color: #ffa74e;
+        font-size: 22px;
+        cursor: pointer;
+        padding: 8px;
+        flex-shrink: 0;
+    }
+    
+    .hamburger-menu {
+        display: none;
+        background: #000000;
+        border: none;
+        color: #a200f9;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 3px 10px;
+        border: 1px solid #a200f9;
+        flex-shrink: 0;
+        margin-left: auto;
+        border-radius: 5px;
+    }
+    
+    .mobile-nav-overlay {
+        display: none;
+        width: 100%;
+        background: #000000;
+        flex-direction: column;
+    }
+    .mobile-nav-overlay.show { display: flex; }
+    .mobile-nav-sidebar {
+        display: flex;
+        flex-direction: column;
+        padding: 10px 0;
+    }
+    .mobile-nav-sidebar a {
+        color: #a200f9;
+        text-decoration: none;
+        padding: 5px 10px;
+        font-size: 20px;
+        font-weight: 600;
+        position: relative;
+        margin: 3px;
+        border: 1px solid #a200f9;
+    }
+    .mobile-nav-sidebar a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #ff0008;
+        transform: scaleX(0);
+        transition: transform 0.2s;
+    }
+    .mobile-nav-sidebar a:hover::before {
+        transform: scaleX(1);
+        background: white;
+    }
+    .mobile-nav-sidebar a:hover {
+        background: #a200f9;
+        color: white;
+    }
+    .mobile-nav-sidebar .mobile-more-sites-title {
+        color: #a200f9;
+        font-size: 20px;
+        font-weight: 600;
+        margin: 3px 3px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 6px;
+        border: 1px solid #a200f9;
+    }
+    .mobile-nav-sidebar .mobile-more-sites-title i { font-size: 14px; }
+    .mobile-nav-sidebar .mobile-more-sites-title:hover {
+        background: none;
+        color: #a200f9;
+    }
+    .mobile-nav-sidebar .mobile-more-sites-list {
+        display: none;
+        flex-direction: column;
+    }
+    .mobile-nav-sidebar .mobile-more-sites-list.show {
+        display: flex;
+    }
+    .mobile-nav-sidebar .mobile-site-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #a200f9;
+    }
+    .mobile-nav-sidebar .mobile-site-link img {
+        height: 50px;
+        border-radius: 5px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .mobile-nav-close {
+        display: none;
+    }
+    
+    .mobile-search-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        background: #0a0a0a;
+        padding: 15px 20px;
+        z-index: 9999;
+        border-bottom: 2px solid #ffa74e;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .mobile-search-container {
+        display: flex;
+        align-items: center;
+        background: #222;
+        border-radius: 50px;
+        padding: 5px 15px;
+        border: 1px solid #444;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .mobile-search-container input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 12px 8px;
+        color: white;
+        font-size: 16px;
+        outline: none;
+    }
+    .mobile-search-container button {
+        background: transparent;
+        border: none;
+        color: #ffa74e;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 8px;
+    }
+    
+    .nav-menu {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-left: 20px;
+    }
+    .nav-menu a {
+        color: #ddd;
+        font-size: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.2s;
+        position: relative;
+        padding-top: 4px;
+        margin-top: -4px;
+    }
+    .nav-menu a::before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #a200f9;
+        transform: scaleX(0);
+        transition: transform 0.2s;
+    }
+    .nav-menu a:hover::before {
+        transform: scaleX(1);
+    }
+    .nav-menu a:hover { color: #a200f9; }
+    .nav-dropdown-click { position: relative; display: flex; align-items: center; }
+    .nav-dropdown-click .dropbtn-click { cursor: pointer; border: 1px solid #a200f9; border-radius: 5px; padding: 5px 10px; background: #000000; color: #a200f9; }
+    .dropdown-content-click {
+        display: none;
+        background: #000000;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        border-radius: 5px;
+        min-width: 240px;
+        z-index: 200;
+        flex-direction: column;
+        padding: 5px 0;
+    }
+    .dropdown-content-click a {
+        padding: 8px 15px;
+        font-size: 20px;
+        color: #a200f9;
+        background: #000000;
+        border: 1px solid #a200f9;
+        font-weight: 600;
+        margin: 3px;
+        text-decoration: none;
+        position: relative;
+    }
+    .dropdown-content-click a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #ffffff;
+        transform: scaleX(0);
+        transition: transform 0.2s;
+    }
+    .dropdown-content-click a:hover::before {
+        transform: scaleX(1);
+    }
+    .dropdown-content-click a:hover {
+        background: #a200f9;
+        color: white;
+    }
+    .dropdown-content-click.show { display: flex; }
+
+    .nav-more-sites { position: relative; display: flex; align-items: center; }
+    .nav-more-sites .more-sites-trigger {
+        cursor: pointer;
+        color: #ddd;
+        font-size: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.2s;
+        position: relative;
+        padding-top: 4px;
+        margin-top: -4px;
+        white-space: nowrap;
+    }
+    .nav-more-sites .more-sites-trigger .fa-angle-down { font-size: 14px; }
+    .nav-more-sites .more-sites-trigger:hover { color: #a200f9; }
+    .nav-dropdown-click .nav-more-sites .more-sites-trigger,
+    .mobile-nav-sidebar .nav-more-sites .more-sites-trigger {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 15px;
+        font-size: 15px;
+        color: #a5a4a4;
+        font-weight: 600;
+        text-decoration: none;
+        margin: 0;
+        background: none;
+    }
+    .nav-dropdown-click .nav-more-sites {
+        width: 100%;
+    }
+    .nav-dropdown-click .nav-more-sites .more-sites-trigger {
+        width: 100%;
+        font-size: 20px;
+        justify-content: space-between;
+        color: #a200f9;
+        background: #000000;
+        margin: 3px 3px;
+    }
+    .nav-dropdown-click .nav-more-sites .more-sites-trigger .fa-angle-down { font-size: 18px; }
+    .nav-dropdown-click .nav-more-sites .more-sites-trigger::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #ffffff;
+        transform: scaleX(0);
+        transition: transform 0.2s;
+    }
+    .nav-dropdown-click .nav-more-sites .more-sites-trigger:hover::before {
+        transform: scaleX(1);
+    }
+    .mobile-nav-sidebar .nav-more-sites .more-sites-trigger::before { content: none; }
+    .nav-dropdown-click .nav-more-sites .more-sites-trigger:hover,
+    .mobile-nav-sidebar .nav-more-sites .more-sites-trigger:hover {
+        background: #a200f9;
+        color: white;
+    }
+    .more-sites-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: #000000;
+        border-radius: 5px;
+        min-width: 240px;
+        z-index: 210;
+        flex-direction: column;
+        padding: 2px 0;
+    }
+    .more-sites-dropdown.show { display: flex; }
+    .more-sites-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 3px 5px;
+        margin: 3px;
+        font-size: 20px;
+        color: #a200f9;
+        background: #000000;
+        font-weight: 600;
+        border: 1px solid #a200f9;
+        text-decoration: none;
+        position: relative;
+        white-space: nowrap;
+    }
+    .more-sites-dropdown a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #ffffff;
+        transform: scaleX(0);
+        transition: transform 0.2s;
+    }
+    .more-sites-dropdown a:hover::before {
+        transform: scaleX(1);
+    }
+    .more-sites-dropdown a img {
+        height: 50px;
+        border-radius: 5px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .more-sites-dropdown a:hover { background: #777; color: white; }
+    .more-sites-dropdown a:hover::before { transform: scaleX(0); }
+    
+    @media (max-width: 760px) {
+        .search-icon-mobile { display: none !important; }
+        .hamburger-menu { display: block !important; }
+        .nav-menu { display: none !important; }
+        .nav-dropdown-click { display: none !important; }
+        .logo-icon { width: 100px; height: 45px; }
+        .nav-menu a { font-size: 12px; }
+    }
+    @media (max-width: 1280px) and (min-width: 761px) {
+        .nav-menu a, .nav-menu .nav-more-sites { display: none; }
+        .nav-dropdown-click { display: flex; }
+    }
+    @media (min-width: 1281px) {
+        .nav-dropdown-click { display: none; }
+    }
+    @media (max-width: 480px) {
+
+        .logo-icon { width: 60px; height: 40px; }
+        .nav-menu { gap: 10px; }
+        .nav-menu a { font-size: 11px; }
+    }
+    @media (max-width: 400px) {
+        .search-panel-desktop input { width: 190px; }
+    }
+</style>
+
+<div class="main-header">
+    <div class="top-bar">
+        <div class="logo-area" id="logoClick">
+            <img src="../logo.png"
+                 alt="Allyoulike Video Logo"
+                 class="logo-icon"
+                 onerror="this.onerror=null; this.src='https://placehold.co/48x48?text=AV'">
+        </div>
+
+        <div class="desktop-search-wrapper">
+            <div class="search-panel-desktop">
+                <input type="text" id="searchInputDesktop" placeholder="Search videos, titles...">
+                <button id="searchBtnDesktop"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+        </div>
+
+        <div class="nav-dropdown-click">
+            <a href="#" class="dropbtn-click"><i class="fa fa-angle-down"></i></a>
+            <div class="dropdown-content-click">
+                <a href="../hentai-series.html">Series</a>
+                <a href="../hentai-list.html">List</a>
+                <a href="../genre.html?genre=Uncensored">Uncensored</a>
+                
+                <a href="../genres-filter.html">Genres</a>
+            </div>
+        </div>
+        <div class="nav-menu">
+            <a href="../hentai-series.html">Series</a>
+            <a href="../hentai-list.html">List</a>
+            <a href="../genre.html?genre=Uncensored">Uncensored</a>
+            
+            <a href="../genres-filter.html">Genres</a>
+        </div>
+        <button class="search-icon-mobile" id="searchIconMobile">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button class="hamburger-menu" id="hamburgerMenu">
+            <i class="fa fa-bars"></i>
+        </button>
+    </div>
+    <div class="mobile-nav-overlay" id="mobileNavOverlay">
+        <div class="mobile-nav-sidebar">
+            <a href="../hentai-series.html">Series</a>
+            <a href="../hentai-list.html">List</a>
+            <a href="../genre.html?genre=Uncensored">Uncensored</a>
+            
+            <a href="../genres-filter.html">Genres</a>
+        </div>
+    </div>
+</div>
+
+<div class="mobile-search-overlay" id="mobileSearchOverlay">
+    <div class="mobile-search-container">
+        <input type="text" id="searchInputMobile" placeholder="Search videos, titles..." autocomplete="off">
+        <button id="searchBtnMobile"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button id="closeSearchBtn"><i class="fa-solid fa-times"></i></button>
+    </div>
+</div>
+</body>
+</html>
