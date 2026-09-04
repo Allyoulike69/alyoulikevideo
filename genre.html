@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>Allyoulike Video - Gallery Video Center</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        #header-placeholder{
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+        }
+
+        /* Style untuk banner container */
+        .banner-container {
+            width: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+        .banner-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Container untuk sosial bar - fixed di pojok kanan bawah */
+        .social-bar-fixed {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        .main-content-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .genre-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 40px;
+        }
+
+        #genre-videos-grid {
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+
+        .video-item {
+            flex: 0 0 auto;
+        }
+
+        @media (min-width: 1201px) {
+            .video-item { width: calc((100% - 25px) / 6); }
+        }
+
+        @media (max-width: 1200px) {
+            .video-item { width: calc((100% - 20px) / 5); }
+        }
+
+        @media (max-width: 820px) {
+            .video-item { width: calc((100% - 15px) / 4); }
+        }
+
+        @media (max-width: 700px) {
+            .video-item { width: calc((100% - 10px) / 3); }
+        }
+
+        @media (max-width: 440px) {
+            .video-item { width: calc((100% - 5px) / 2); }
+        }
+        
+        .mobile-search-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #0a0a0aef;
+            backdrop-filter: blur(12px);
+            padding: 20px;
+            z-index: 10000;
+            border-bottom: 2px solid #ff3b6f;
+        }
+        .mobile-search-container {
+            display: flex;
+            align-items: center;
+            background: #1e1e1e;
+            border-radius: 60px;
+            padding: 4px 16px;
+            border: 1px solid #444;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            gap: 8px;
+        }
+        .mobile-search-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 8px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+        .mobile-search-container button {
+            background: transparent;
+            border: none;
+            color: #ff3b6f;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 8px;
+        }
+        #closeSearchBtn {
+            color: #aaa;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0;
+            margin: 10px 0 10px 0;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+        
+        .section-header h2 {
+        }
+        
+        .genre-title {
+            display: inline-block;
+            font-size: 25px;
+            font-weight: 700;
+            font-style: italic;
+            color: #fff;
+            background: #a200f9;
+            padding: 5px 15px 5px 15px;
+            letter-spacing: 0.5px;
+            margin: 0px -30px 0px 0px;
+            position: relative;
+            z-index: 2;
+            clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+        }
+        .section-line {
+            flex: 1;
+            height: 2px;
+            background: #a200f9;
+            margin-left: -2px;
+        }
+        
+        .video-item {
+            background: #1a1a1a;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #333;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .video-item:hover {
+            border-color: #a200f9;
+        }
+        .video-thumb-container {
+            position: relative;
+            background: #222;
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            overflow: hidden;
+        }
+        .video-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .video-item:hover .video-thumb {
+            transform: scale(1.05);
+        }
+        .play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 20px;
+            transition: 0.2s;
+            border: 2px solid rgba(255,255,255,0.5);
+            opacity: 0;
+            visibility: hidden;
+        }
+        .video-item:hover .play-overlay {
+            border-color: #a200f9;
+            opacity: 1;
+            color: #a200f9;
+            visibility: visible;
+            background: #00000000;
+        }
+        .video-title {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 5px;
+            background-color: #a200f9ad;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            line-height: 1.3;
+            color: #fff;
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+        }
+        
+        .badge-new {
+            position: absolute;
+            top: 8px;
+            left: -4px;
+            padding: 5px 15px 5px 10px;
+            font-size: 10px;
+            font-weight: 900;
+            color: white;
+            z-index: 1;
+            background: #b80006;
+            clip-path: polygon(0 0, 100% 0, 75% 100%, 100% 100%, 0 100%, 0px 50%);
+        }
+        
+        .rating-badge {
+            position: absolute;
+            top: 8px;
+            right: -4px;
+            padding: 5px 10px 5px 15px;
+            font-size: 10px;
+            font-weight: 900;
+            color: white;
+            z-index: 1;
+            background: #000;
+            clip-path: polygon(100% 0, 0 0, 25% 100%, 0 100%, 100% 100%, 100% 50%);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .rating-badge i {
+            color: #ffd700;
+            font-size: 10px;
+        }
+        
+        .pagination-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 2px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .pagination-btn, .pagination-arrow {
+background: #1c1c1c00;
+border: 1px solid #a200f9;
+color: white;
+padding: 8px 14px;
+border-radius: 5px;
+cursor: pointer;
+transition: all 0.2s;
+}
+.pagination-btn:hover, .pagination-arrow:hover {
+background: #a200f9;
+border-color: #a200f9;
+color: #ffffff;
+}
+        .pagination-btn.active { background: #a200f9; border-color: #a200f9; color: white; }
+        .pagination-arrow.disabled { display: none; }
+        .pagination-dots { color: #aaa; }
+        @media (max-width: 400px) {
+            .pagination-btn, .pagination-arrow {
+                background: #1c1c1c00;
+                border: 1px solid #a200f9;
+                color: white;
+                padding: 8px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+        }
+
+        .sort-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            margin: 10px 0;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+        .sort-btn {
+            background: #1c1c1c00;
+            border: 1px solid #a200f9;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 25px;
+            transition: all 0.2s;
+        }
+        .sort-btn:hover {
+            background: #a200f9;
+            border-color: #a200f9;
+            color: #ffffff;
+        }
+        .sort-btn.active { background: #a200f9; border-color: #a200f9; color: white; }
+        
+        @media (max-width: 540px) {
+            .sort-btn { font-size: 15px; padding: 6px 12px; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content-container { padding: 0 16px; }
+            .genre-title { font-size: 18px; }
+        }
+        
+        .no-data-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: #101010;
+            border-radius: 32px;
+            color: #aaa;
+            font-size: 1rem;
+        }
+
+        /* Responsive untuk sosial bar di mobile */
+        @media (max-width: 768px) {
+            .social-bar-fixed {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+    <script src="https://rhubarbambassadorweep.com/58/f1/5f/58f15fa660a27785bef07798986ecbe7.js"></script>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<!-- Container untuk top banner (di bawah header) -->
+<div id="topbanner-container" class="banner-container"></div>
+
+<div class="mobile-search-overlay" id="mobileSearchOverlay">
+    <div class="mobile-search-container">
+        <input type="text" id="searchInputMobile" placeholder="Search videos, titles..." autocomplete="off">
+        <button id="searchBtnMobile"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button id="closeSearchBtn"><i class="fa-solid fa-times"></i></button>
+    </div>
+</div>
+
+<div class="main-content-container">
+    <div id="search-info-container"></div>
+    
+    <div class="section-header">
+        <h2 class="genre-title" id="genretitle">New Uploads</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="sort-bar">
+        <button class="sort-btn" data-sort="rating" onclick="setSort('rating')">By Rating</button>
+        <button class="sort-btn" data-sort="az" onclick="setSort('az')">A / Z</button>
+        <button class="sort-btn" data-sort="years" onclick="setSort('years')">Years</button>
+    </div>
+    <div id="genre-videos-grid" class="genre-grid"></div>
+    
+    <div id="pagination" class="pagination-container"></div>
+</div>
+
+<!-- Container untuk middle banner -->
+<div id="middlebanner-container" class="banner-container"></div>
+
+<!-- Container untuk bottom banner -->
+<div id="bottombanner-container" class="banner-container"></div>
+
+<!-- Container untuk sosial bar (fixed position) -->
+<div id="sosialbar-container" class="social-bar-fixed"></div>
+
+<div id="footer-placeholder"></div>
+
+<script>
+// Fungsi untuk memuat file HTML ke dalam elemen
+function loadHTML(elementId, filePath, callback) {
+    fetch(filePath + '?t=' + Date.now())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = data;
+                
+                // Jika ada script di dalam konten yang dimuat, jalankan ulang
+                const scripts = element.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    document.body.removeChild(newScript);
+                });
+            }
+            if (callback) callback();
+        })
+        .catch(error => {
+            console.warn(`Gagal memuat ${filePath}:`, error);
+            const element = document.getElementById(elementId);
+            if (element && elementId !== 'sosialbar-container') {
+                // Tampilkan pesan error di elemen (opsional)
+                element.innerHTML = `<div style="background:#1a1a1a; color:#ff3b6f; text-align:center; padding:10px;">⚠️ Tidak dapat memuat konten</div>`;
+            } else if (elementId === 'sosialbar-container') {
+                // Untuk sosial bar, tampilkan pesan kecil
+                element.innerHTML = `<div style="background:#1a1a1a; color:#ff3b6f; padding:8px 12px; border-radius:50px; font-size:12px;">⚠️ Error</div>`;
+            }
+        });
+}
+
+// Fungsi untuk memuat header
+function loadHeader() {
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    if (headerPlaceholder) {
+        fetch('topbanner.html')
+            .then(response => response.text())
+            .then(data => {
+                headerPlaceholder.innerHTML = data;
+            })
+            .catch(error => {
+                console.warn('Gagal memuat header:', error);
+                headerPlaceholder.innerHTML = '<div style="background:#1a1a1a; color:#ff3b6f; text-align:center; padding:10px;">⚠️ Header tidak tersedia</div>';
+            });
+    }
+}
+
+// Memuat semua banner dan sosial bar setelah halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    // Panggil fungsi load untuk masing-masing komponen
+    loadHTML('topbanner-container', 'topbanner.html');
+    loadHTML('middlebanner-container', 'middlebanner.html');
+    loadHTML('bottombanner-container', 'bottombanner.html');
+    loadHTML('sosialbar-container', 'sosialbar.html');
+    loadHTML('footer-placeholder', 'footer.html');
+    
+    // Load header terpisah karena posisinya berbeda
+    loadHeader();
+});
+</script>
+
+<script src="genre.js?v=4"></script>
+<script src="tracker.js?v=12"></script>
+</body>
+</html>

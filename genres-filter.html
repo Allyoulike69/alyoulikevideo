@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>Allyoulike Video - Gallery Video Center</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        #header-placeholder{
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+        }
+
+        /* Style untuk banner container */
+        .banner-container {
+            width: 100%;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+        .banner-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Container untuk sosial bar - fixed di pojok kanan bawah */
+        .social-bar-fixed {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        #main-wrapper {
+            padding: 0 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .genre-content-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px 15px;
+            width: 100%;
+            background: linear-gradient(135deg, #111, #1a1a1a);
+            border: 1px solid #444;
+            border-radius: 5px;
+            flex: 1;
+        }
+        .studio-content-container {
+            max-width: 100%;
+            margin: 10px auto;
+            padding: 15px 15px;
+            width: 100%;
+            background: linear-gradient(135deg, #111, #1a1a1a);
+            border: 1px solid #444;
+            border-radius: 5px;
+            flex: 1;
+        }
+        .years-content-container {
+            max-width: 100%;
+            margin: 10px auto;
+            padding: 15px 15px;
+            width: 100%;
+            background: linear-gradient(135deg, #111, #1a1a1a);
+            border: 1px solid #444;
+            border-radius: 5px;
+            flex: 1;
+        }
+
+        .mobile-search-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #0a0a0aef;
+            backdrop-filter: blur(12px);
+            padding: 20px;
+            z-index: 10000;
+            border-bottom: 2px solid #ff3b6f;
+        }
+        .mobile-search-container {
+            display: flex;
+            align-items: center;
+            background: #1e1e1e;
+            border-radius: 60px;
+            padding: 4px 16px;
+            border: 1px solid #444;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            gap: 8px;
+        }
+        .mobile-search-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 8px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+        .mobile-search-container button {
+            background: transparent;
+            border: none;
+            color: #ff3b6f;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 8px;
+        }
+        #closeSearchBtn {
+            color: #aaa;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0;
+            margin: 0px 0 15px 0;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .genrelist-title {
+            display: inline-block;
+            font-size: 25px;
+            font-weight: 700;
+            font-style: italic;
+            color: #fff;
+            background: #a200f9;
+            padding: 5px 20px 5px 20px;
+            letter-spacing: 0.5px;
+            margin: 0px -30px 0px 0px;
+            position: relative;
+            z-index: 2;
+            clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+        }
+        .section-line {
+            flex: 1;
+            height: 2px;
+            background: #a200f9;
+            margin-left: -2px;
+        }
+        
+        .genre-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .genrelist-item {
+            background: #1a1a1a;
+            border: 1px solid #a200f9;
+            border-radius: 5px;
+            padding: 5px 20px 5px 20px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: stretch;
+            gap: 8px;
+        }
+        .genrelist-item:hover {
+            border-color: #a200f9;
+            background: #ffffff;
+            color: #000000;
+        }
+        .genrelist-item i {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .genre-content-container { padding: 0 16px; }
+            .studio-content-container { padding: 0 16px; }
+            .genrelist-title { font-size: 18px; }
+        }
+
+        @media (max-width: 540px) {
+            .section-header h2 {
+                margin: 0;
+                font-size: 13px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .genrelist-title {
+                padding: 3px 10px 3px 10px;
+            }
+            .genre-content-container {
+                padding: 10px 16px;
+            }
+            .studio-content-container {
+                padding: 10px 16px;
+            }
+            .years-content-container {
+                padding: 10px 16px;
+            }
+            .genrelist-item {
+                background: #1a1a1a;
+                border: 1px solid #333;
+                border-radius: 5px;
+                padding: 5px 10px 5px 10px;
+                color: #fff;
+                font-weight: 600;
+                font-size: 12px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .genre-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 2px;
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+        
+        .no-data-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: #101010;
+            border-radius: 32px;
+            color: #aaa;
+            font-size: 1rem;
+        }
+
+        /* Responsive untuk sosial bar di mobile */
+        @media (max-width: 768px) {
+            .social-bar-fixed {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+    <script src="https://rhubarbambassadorweep.com/58/f1/5f/58f15fa660a27785bef07798986ecbe7.js"></script>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<div id="main-wrapper">
+    <!-- Container untuk top banner (di bawah header) -->
+    <div id="topbanner-container" class="banner-container"></div>
+
+    <div class="mobile-search-overlay" id="mobileSearchOverlay">
+        <div class="mobile-search-container">
+            <input type="text" id="searchInputMobile" placeholder="Search videos, titles..." autocomplete="off">
+            <button id="searchBtnMobile"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <button id="closeSearchBtn"><i class="fa-solid fa-times"></i></button>
+        </div>
+    </div>
+
+    <div class="genre-content-container">
+        <div id="search-info-container"></div>
+        
+        <div class="section-header">
+            <h2 class="genrelist-title" id="genretitle">Genres</h2>
+            <div class="section-line"></div>
+        </div>
+        <div id="genrelist-videos-grid" class="genre-grid"></div>
+    </div>
+
+    <div class="studio-content-container">
+        <div class="section-header">
+            <h2 class="genrelist-title" id="studiotitle">Studios</h2>
+            <div class="section-line"></div>
+        </div>
+        <div id="studiolist-videos-grid" class="genre-grid"></div>
+    </div>
+
+    <div class="years-content-container">
+        <div class="section-header">
+            <h2 class="genrelist-title" id="yearstitle">Years</h2>
+            <div class="section-line"></div>
+        </div>
+        <div id="yearslist-videos-grid" class="genre-grid"></div>
+    </div>
+
+    <!-- Container untuk middle banner -->
+    <div id="middlebanner-container" class="banner-container"></div>
+
+    <!-- Container untuk bottom banner -->
+    <div id="bottombanner-container" class="banner-container"></div>
+</div>
+
+<!-- Container untuk sosial bar (fixed position) -->
+<div id="sosialbar-container" class="social-bar-fixed"></div>
+
+<div id="footer-placeholder"></div>
+
+<script>
+// Fungsi untuk memuat file HTML ke dalam elemen
+function loadHTML(elementId, filePath, callback) {
+    fetch(filePath + '?t=' + Date.now())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = data;
+                
+                // Jika ada script di dalam konten yang dimuat, jalankan ulang
+                const scripts = element.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    document.body.removeChild(newScript);
+                });
+            }
+            if (callback) callback();
+        })
+        .catch(error => {
+            console.warn(`Gagal memuat ${filePath}:`, error);
+            const element = document.getElementById(elementId);
+            if (element && elementId !== 'sosialbar-container') {
+                // Tampilkan pesan error di elemen (opsional)
+                element.innerHTML = `<div style="background:#1a1a1a; color:#ff3b6f; text-align:center; padding:10px;">⚠️ Tidak dapat memuat konten</div>`;
+            } else if (elementId === 'sosialbar-container') {
+                // Untuk sosial bar, tampilkan pesan kecil
+                element.innerHTML = `<div style="background:#1a1a1a; color:#ff3b6f; padding:8px 12px; border-radius:50px; font-size:12px;">⚠️ Error</div>`;
+            }
+        });
+}
+
+// Fungsi untuk memuat header
+function loadHeader() {
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    if (headerPlaceholder) {
+        fetch('topbanner.html')
+            .then(response => response.text())
+            .then(data => {
+                headerPlaceholder.innerHTML = data;
+            })
+            .catch(error => {
+                console.warn('Gagal memuat header:', error);
+                headerPlaceholder.innerHTML = '<div style="background:#1a1a1a; color:#ff3b6f; text-align:center; padding:10px;">⚠️ Header tidak tersedia</div>';
+            });
+    }
+}
+
+// Memuat semua banner dan sosial bar setelah halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    // Panggil fungsi load untuk masing-masing komponen
+    loadHTML('topbanner-container', 'topbanner.html');
+    loadHTML('middlebanner-container', 'middlebanner.html');
+    loadHTML('bottombanner-container', 'bottombanner.html');
+    loadHTML('sosialbar-container', 'sosialbar.html');
+    loadHTML('footer-placeholder', 'footer.html');
+    
+    // Load header terpisah karena posisinya berbeda
+    loadHeader();
+});
+</script>
+
+<script src="genres-filter.js?v=2"></script>
+<script src="tracker.js?v=12"></script>
+</body>
+</html>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>Allyoulike Video - Gallery Video Center</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    
+    <!-- Main CSS (tanpa header dan footer CSS) -->
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            max-width: 768px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        /* Banner containers style */
+        .banner-container {
+            width: 100%;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .top-banner, .middle-banner, .bottom-banner {
+            min-height: 90px;
+            background: transparent;
+        }
+
+        /* Social bar container - fixed position bottom right */
+        .socialbar-wrapper {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 300px;
+            width: auto;
+        }
+
+        .search-container {
+            max-width: 768px;
+            margin: 10px auto 10px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 0px;
+            overflow: hidden;
+        }
+
+        .search-input {
+            width: 100%;
+            background: #000000;
+            border: 1px solid #444;
+            border-radius: 0px;
+            padding: 12px 55px 12px 20px;
+            font-size: 14px;
+            color: white;
+            outline: none;
+        }
+
+        .search-input:focus { border-color: #a200f9; }
+
+        .search-button {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 8px 12px;
+        }
+
+        .search-button:hover { transform: translateY(-50%) scale(1.1); }
+
+        .search-info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .result-count { font-size: 15px; color: #a200f9; display: flex; align-items: center; gap: 8px; }
+
+        .clear-search-btn {
+            background: #a200f9;
+            color: #fefbff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .clear-search-btn:hover {
+            background: #2a2a2a;
+            color: #a200f9;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .search-empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: left;
+            padding: 0px 0px;
+            max-width: 500px;
+            width: 100%;
+        }
+        .search-empty-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .search-empty-suggestions {
+            font-size: 14px;
+            color: #fff;
+            font-weight: 600;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .search-empty-subtitle {
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.6;
+        }
+        .search-empty-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+        .search-empty-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: #a200f9;
+            flex-shrink: 0;
+        }
+
+        
+
+
+        @media (max-width: 600px) {
+            .socialbar-wrapper { bottom: 10px; right: 10px; max-width: 250px; }
+        }
+
+        .search-item {
+            background: #1a1a1a;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: transform 0.25s, border-color 0.25s;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .search-item:hover { transform: translateY(-2px); border-color: #a200f9; box-shadow: 0 20px 25px -12px rgba(0,0,0,0.6); }
+
+        .thumb-box {
+            position: relative;
+            width: 140px;
+            flex-shrink: 0;
+            aspect-ratio: 2 / 3;
+            overflow: hidden;
+            background: #222;
+        }
+        .thumb-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .search-item:hover .thumb-box img { transform: scale(1.05); }
+
+        .search-info {
+            flex: 1;
+            min-width: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .search-title {
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 1.4;
+            pointer-events: none;
+        }
+        .search-rating {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+        .search-genre-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            pointer-events: none;
+        }
+        .search-genre-chip {
+            background: #2fb310;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .search-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-year {
+            font-size: 14px;
+            color: #aaa;
+            font-weight: 700;
+            pointer-events: none;
+        }
+
+        @media (max-width: 540px) {
+            .search-title {
+                color: #fff;
+                font-weight: bold;
+                font-size: 13px;
+                line-height: 1.4;
+                pointer-events: none;
+            }
+            .search-rating {
+                font-size: 13px;
+                font-weight: 700;
+                color: #ffd700;
+            }
+            .search-year {
+                font-size: 13px;
+                color: #aaa;
+                font-weight: 700;
+                pointer-events: none;
+            }
+            .search-genre-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 3px;
+                pointer-events: none;
+            }
+            .search-genre-chip {
+                background: #2fb310;
+                color: #fff;
+                font-size: 11px;
+                font-weight: 600;
+                padding: 3px 5px;
+                border-radius: 5px;
+                white-space: nowrap;
+                pointer-events: none;
+            }
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 2px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn, .pagination-arrow {
+            background: #1c1c1c00;
+            border: 1px solid #a200f9;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pagination-btn:hover, .pagination-arrow:hover {
+            background: #a200f9;
+            border-color: #a200f9;
+            color: #ffffff;
+        }
+        .pagination-btn.active { background: #a200f9; border-color: #a200f9; color: white; }
+        .pagination-arrow.disabled { display: none; }
+        @media (max-width: 400px) {
+            .pagination-btn, .pagination-arrow {
+                background: #1c1c1c00;
+                border: 1px solid #a200f9;
+                color: white;
+                padding: 8px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+        }
+    </style>
+    <script src="https://rhubarbambassadorweep.com/58/f1/5f/58f15fa660a27785bef07798986ecbe7.js"></script>
+
+</head>
+<body>
+
+<!-- Header akan di-load dari file terpisah -->
+<div id="header-container"></div>
+
+<!-- TOP BANNER -->
+<div id="topbanner-container" class="banner-container top-banner"></div>
+
+<div class="content-wrapper">
+    <div class="search-container">
+        <div class="search-wrapper">
+            <input type="text" id="mainSearchInput" class="search-input" placeholder="Search videos, titles, anime...">
+            <button id="mainSearchBtn" class="search-button"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+    
+    <div id="searchInfoBar" class="search-info-bar" style="display: none;">
+        <div class="result-count"><span id="resultCountText"></span></div>
+        <button id="clearSearchBtn" class="clear-search-btn"><i class="fa-solid fa-times"></i> Clear Search</button>
+    </div>
+    
+    <div id="resultGrid" class="video-grid"></div>
+    <div id="pagination" class="pagination-container"></div>
+</div>
+
+<!-- MIDDLE BANNER -->
+    <div id="middlebanner-container" class="banner-container middle-banner"></div>
+
+<!-- BOTTOM BANNER -->
+<div id="bottombanner-container" class="banner-container bottom-banner"></div>
+
+    <!-- Social Bar Container - Fixed bottom right -->
+<div id="socialbar-wrapper" class="socialbar-wrapper"></div>
+<!-- Footer akan di-load dari file terpisah -->
+<div id="footer-container"></div>
+
+<script>
+    // Fungsi untuk memuat komponen dari file eksternal
+    function loadComponent(containerId, fileUrl, isBanner = false) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error(`Container ${containerId} tidak ditemukan`);
+            return;
+        }
+        
+        fetch(fileUrl + '?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                container.innerHTML = data;
+                console.log(`✅ ${fileUrl} berhasil di-load ke ${containerId}`);
+                
+                // Eksekusi script yang ada di dalam konten
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                    if (oldScript.parentNode) oldScript.remove();
+                });
+            })
+            .catch(error => {
+                console.error(`❌ Error loading ${fileUrl}:`, error);
+                if (isBanner) {
+                    container.innerHTML = `<div style="text-align:center; padding:20px; color:#ff3b6f; background:#111; border-radius:10px; margin:10px 0;">⚠️ Gagal memuat banner</div>`;
+                }
+            });
+    }
+
+    // Fungsi khusus untuk memuat sosial bar
+    function loadSocialBar() {
+        const wrapper = document.getElementById('socialbar-wrapper');
+        if (!wrapper) {
+            console.error('Social bar wrapper tidak ditemukan');
+            return;
+        }
+        
+        console.log('Mencoba memuat sosialbar.html...');
+        fetch('sosialbar.html?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                wrapper.innerHTML = data;
+                console.log('✅ sosialbar.html berhasil di-load, panjang HTML:', data.length);
+                
+                // Eksekusi semua script yang ada di sosialbar.html
+                const scripts = wrapper.querySelectorAll('script');
+                console.log(`Ditemukan ${scripts.length} script di sosialbar.html`);
+                scripts.forEach((oldScript, index) => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                        console.log(`Memuat external script ${index + 1}: ${oldScript.src}`);
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                        console.log(`Memuat inline script ${index + 1}`);
+                    }
+                    document.body.appendChild(newScript);
+                    if (oldScript.parentNode) oldScript.remove();
+                });
+            })
+            .catch(error => {
+                console.error('❌ Error loading sosialbar.html:', error);
+                wrapper.innerHTML = `<div style="background:#ff3b6f; color:white; padding:10px 18px; border-radius:50px; font-size:13px; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.3); cursor:pointer;" onclick="this.style.display='none'">
+                    <i class="fas fa-share-alt"></i> Social Bar <span style="margin-left:8px;">✕</span>
+                </div>`;
+            });
+    }
+
+    // Load Header
+    fetch('search-header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-container').innerHTML = data;
+            console.log('✅ Header berhasil di-load');
+            // Eksekusi script di header jika ada
+            const scripts = document.querySelectorAll('#header-container script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+                if (oldScript.parentNode) oldScript.remove();
+            });
+        })
+        .catch(error => {
+            console.error('Error loading header:', error);
+            document.getElementById('header-container').innerHTML = '<div class="main-header"><div class="top-bar"><div class="logo-area"><div class="logo-text">Allyoulike Video</div></div></div></div>';
+        });
+    
+    // Load Footer
+    fetch('footer.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('footer-container').innerHTML = data;
+            console.log('✅ Footer berhasil di-load');
+            // Eksekusi script di footer jika ada
+            const scripts = document.querySelectorAll('#footer-container script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+                if (oldScript.parentNode) oldScript.remove();
+            });
+        })
+        .catch(error => {
+            console.error('Error loading footer:', error);
+            document.getElementById('footer-container').innerHTML = '<div class="main-footer"><div class="footer-text">© 2025 Allyoulike Video - All rights reserved.</div></div>';
+        });
+
+    // Load Top Banner, Middle Banner, Bottom Banner
+    loadComponent('topbanner-container', 'topbanner.html', true);
+    loadComponent('middlebanner-container', 'middlebanner.html', true);
+    loadComponent('bottombanner-container', 'bottombanner.html', true);
+    
+    // Load Social Bar (diberi delay sedikit agar tidak bentrok)
+    setTimeout(() => {
+        loadSocialBar();
+    }, 300);
+</script>
+
+<!-- External JavaScript file -->
+<script src="search.js?v=4"></script>
+
+<script src="tracker.js?v=12"></script>
+</body>
+</html>
