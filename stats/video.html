@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Video - Allyoulike Video</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+        *{box-sizing:border-box}
+        body{background:#ffffff;color:#f0f0f0;margin:0;padding:0;font-family:'Segoe UI','Poppins',system-ui,sans-serif}
+        .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+        .page-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+        .page-title h1{font-size:42px;color:#000;margin:0;display:flex;align-items:center;gap:10px}
+        .page-title h1 i{color:#a200f9}
+        .nav-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+        .nav-tabs a{padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid #333}
+        .nav-tabs a.active{background:#a200f9;color:#fff;border-color:#a200f9}
+        .nav-tabs a:not(.active){background:#111;color:#aaa}
+        .nav-tabs a:not(.active):hover{border-color:#a200f9;color:#fff}
+        .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+        .toolbar input{background:#111;border:1px solid #333;color:#fff;border-radius:6px;padding:9px 12px;font-size:13px;flex:1;min-width:200px}
+        .toolbar input:focus{outline:none;border-color:#a200f9}
+        .toolbar select{background:#111;border:1px solid #333;color:#fff;border-radius:6px;padding:9px 12px;font-size:13px}
+        .btn{display:inline-flex;align-items:center;gap:6px;background:#a200f9;color:#fff;border:none;border-radius:30px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none}
+        .btn:hover{background:#7d00bf}
+        .btn.ghost{background:#1a1a1a;border:1px solid #333}
+        .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+        .card{background:linear-gradient(135deg,#111,#1a1a1a);border:1px solid #444;border-radius:10px;padding:16px 18px}
+        .card .label{font-size:11px;color:#999;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .card .label i{color:#a200f9}
+        .card .num{font-size:26px;font-weight:800;color:#fff}
+        .card.hl{border-color:#a200f9}
+        .panel{background:#000000;border:1px solid #333;border-radius:10px;padding:16px 18px;margin-bottom:18px}
+        .panel h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;color:#fff}
+        .panel h2 i{color:#a200f9}
+        .bar-wrap{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+        .bar-chart{width:100%;min-width:100%}
+        .bar-chart svg{display:block;max-width:none}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        th,td{padding:9px 10px;text-align:left;border-bottom:1px solid #222}
+        th{color:#a200f9;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap}
+        td.num{font-weight:700}
+        tr:hover td{background:#161616}
+        .rank{color:#ff3b6f;font-weight:800;width:36px}
+        .title-cell{max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .title-cell a{color:#fff;text-decoration:none}
+        .title-cell a:hover{color:#a200f9}
+        .loading,.empty{text-align:center;color:#888;padding:18px}
+        .genre-grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start}
+        .dashboard-item{flex:0 0 calc((100% - 24px)/3);width:calc((100% - 24px)/3);display:flex;flex-direction:row;gap:10px;align-items:center;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:10px;transition:border-color 0.2s;min-width:0}
+        .dashboard-item:hover{border-color:#a200f9}
+        .dashboard-item .video-thumb-container{flex:0 0 90px;width:90px;aspect-ratio:2/3;overflow:hidden;background:#222;border-radius:5px;position:relative}
+        .video-thumb{width:100%;height:100%;object-fit:cover;display:block}
+        .dashboard-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+        .dashboard-rank{font-size:11px;font-weight:800;color:#ff3b6f;letter-spacing:0.5px}
+        .dashboard-title{font-weight:800;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+        .dashboard-count{font-size:11px;font-weight:700;color:#ccc;display:flex;align-items:center;gap:5px}
+        .dashboard-count i{color:#a200f9;width:12px;text-align:center;font-size:11px}
+        .dashboard-count strong{color:#fff}
+        @media(max-width:900px){.dashboard-item{flex:0 0 calc((100% - 12px)/2);width:calc((100% - 12px)/2)}}
+        @media(max-width:500px){.dashboard-item{flex:0 0 100%;width:100%} .dashboard-item .video-thumb-container{flex:0 0 90px;width:90px}}
+        .table-scroll{max-height:70vh;overflow-y:auto;border:1px solid #262626;border-radius:8px}
+        .table-scroll table{margin:0}
+        .table-scroll thead th{position:sticky;top:0;background:#141414;z-index:1}
+        .pagination{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap}
+        .pagination .info{font-size:12px;color:#888}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="page-title">
+        <h1><i class="fa-solid fa-film"></i> Dashboard Video</h1>
+        <span id="lastUpdate" style="margin-left:auto;font-size:12px;color:#888;display:inline-flex;align-items:center;gap:6px;">Update: -</span>
+    </div>
+    <div class="nav-tabs">
+        <a href="index.html"><i class="fa-solid fa-chart-simple"></i> Kunjungan</a>
+        <a class="active" href="video.html"><i class="fa-solid fa-film"></i> Video</a>
+    </div>
+
+    <div class="panel">
+        <h2><i class="fa-solid fa-table-list"></i> Semua Video <span id="pageInfo" style="margin-left:8px;font-size:12px;color:#888;font-weight:400"></span></h2>
+        <div class="toolbar">
+            <input id="searchInput" type="search" placeholder="Cari judul / genre...">
+            <select id="sortSelect">
+                <option value="total_desc" selected>Urut: Total Terbanyak</option>
+                <option value="views_desc">Urut: Dibuka Terbanyak</option>
+                <option value="plays_desc">Urut: Diputar Terbanyak</option>
+                <option value="title_asc">Urut: Judul A-Z</option>
+                <option value="default">Urut: Default (Daftar)</option>
+            </select>
+            <button id="refreshBtn" class="btn ghost"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+        <!-- GRID dashboard-item gambar kiri, info kanan -->
+        <div id="videoGrid" class="genre-grid" style="min-height:80px"><div class="loading" style="width:100%;text-align:center;padding:20px;color:#888">Memuat...</div></div>
+    </div>
+</div>
+<script src="../tracker.js?v=12"></script>
+<script src="video.js?v=11"></script>
+</body>
+</html>
