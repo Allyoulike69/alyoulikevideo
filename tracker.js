@@ -13,18 +13,26 @@
     var started = false;
 
     /* ---------- Utility ---------- */
-    function http(action, key) {
-        return fetch(API + '/' + action + '/' + encodeURIComponent(key), {
-            method: 'GET',
-            cache: 'no-store'
-        }).then(function (r) {
-            return r.json().catch(function () { return {}; });
-        }).then(function (j) {
-            var v = parseInt(j && j.value, 10);
-            return isNaN(v) ? 0 : v;
-        }).catch(function () {
-            return 0;
-        });
+    function http(action, key, retries) {
+        retries = retries || 1;
+        function doFetch(attempt){
+            return fetch(API + '/' + action + '/' + encodeURIComponent(key), {
+                method: 'GET', cache: 'no-store', keepalive: true
+            }).then(function (r) {
+                if(!r.ok) throw new Error('http '+r.status);
+                return r.json().catch(function () { return {}; });
+            }).then(function (j) {
+                var v = parseInt(j && j.value, 10);
+                return isNaN(v) ? 0 : v;
+            }).catch(function (e) {
+                if(attempt < retries){
+                    return new Promise(function(res){ setTimeout(function(){ res(doFetch(attempt+1)); }, 400); });
+                }
+                console.warn('[VH] http fail', action, key, e.message);
+                return 0;
+            });
+        }
+        return doFetch(0);
     }
 
     function slug(str) {
@@ -167,12 +175,12 @@
         started = true;
         // jangan hit jika sedang di halaman stats agar tidak mengotori data
         if (window.location.pathname.indexOf('/stats') !== -1) return;
-        // throttle ringan: 1 hit per 15 detik agar tidak spam saat refresh cepat
+        // throttle dimatikan untuk akurasi (20 viewer harus 20 hit) - hanya cegah double-hit 2 detik
         try {
             var sessKey = 'vh_hit_' + window.location.pathname;
             var last = sessionStorage.getItem(sessKey);
-            if (last && Date.now() - parseInt(last, 10) < 15000) {
-                console.log('[VH] skip hit (throttle 15s):', window.location.pathname);
+            if (last && Date.now() - parseInt(last, 10) < 2000) {
+                console.log('[VH] skip hit (throttle 2s):', window.location.pathname);
                 return;
             }
             sessionStorage.setItem(sessKey, String(Date.now()));
@@ -181,20 +189,20 @@
         var now = new Date();
         var monthKey = now.getFullYear() + '-' + zeroPad(now.getMonth() + 1);
 
-        // fire-and-forget, jangan blok UI
-        console.log('[VH] hit', { total: keyOf('total'), day: keyOf('day', isoFor(0)), hour: keyOf('hour', isoHourOf(now)), month: keyOf('month', monthKey) });
-        http('hit', keyOf('total'));
-        http('hit', keyOf('day', isoFor(0)));
-        http('hit', keyOf('hour', isoHourOf(now)));
-        http('hit', keyOf('month', monthKey));
-
+        // sequential + keepalive biar tidak rate-limit 5 parallel
         var page = PAGE_NAME || 'index';
         if (window.location.pathname.endsWith('/') || !page) page = 'index';
         page = page.replace(/\.html$/i, '') || 'index';
-        // normalisasi beberapa halaman umum
         var lower = page.toLowerCase();
         if (lower === '' || lower === 'index') page = 'index';
-        http('hit', keyOf('page', page));
+        var keysToHit=[keyOf('total'), keyOf('day', isoFor(0)), keyOf('hour', isoHourOf(now)), keyOf('month', monthKey), keyOf('page', page)];
+        console.log('[VH] hit sequential', keysToHit);
+        (async function(){
+            for(var i=0;i<keysToHit.length;i++){
+                try{ var v=await http('hit', keysToHit[i], 1); console.log('[VH] hit ok', keysToHit[i], v); }catch(e){ console.warn('[VH] hit fail', keysToHit[i]); }
+                if(i<keysToHit.length-1) await new Promise(function(r){ setTimeout(r, 120); });
+            }
+        })();
 
         // share count opsional: jika ada ?share= di URL, hit share untuk video terkait (tetap hit page di atas)
         try {
