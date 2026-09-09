@@ -643,10 +643,13 @@ async function loadVideoData() {
         renderVideoGrid(sliderVideos, 'new-videos-grid', false, true, 1);
         enableSliderDrag(document.getElementById('new-videos-grid'));
         
+        const parseAirDate = (s) => {
+            if (!s) return 0;
+            const t = new Date(s.replace(/\./g, '').trim()).getTime();
+            return isNaN(t) ? 0 : t;
+        };
         const recentlyByLastAir = [...currentFilteredByGenre].sort((a, b) => {
-            const la = a['Last air date'] ? new Date(a['Last air date']) : new Date(0);
-            const lb = b['Last air date'] ? new Date(b['Last air date']) : new Date(0);
-            return lb - la;
+            return parseAirDate(b['Last air date']) - parseAirDate(a['Last air date']);
         });
         const recentlyVideos = recentlyByLastAir.slice(0, 11);
         renderVideoGrid(recentlyVideos, 'recently-videos-grid', false, false);
