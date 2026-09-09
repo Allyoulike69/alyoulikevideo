@@ -34,17 +34,34 @@ function restoreSessionState() {
     return genre;
 }
 
-// ==================== BACA GENRE DARI URL ====================
+// ==================== BACA GENRE & SORT DARI URL ====================
 function getGenreFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('genre');
 }
 
+function getSortFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const s = urlParams.get('sort');
+    if (s && ['rating', 'az', 'years', 'date'].includes(s.toLowerCase())) {
+        return s.toLowerCase();
+    }
+    return null;
+}
+
 // ==================== HAPUS PARAMETER URL ====================
 function removeGenreParamFromURL() {
     const url = new URL(window.location.href);
+    let changed = false;
     if (url.searchParams.has('genre')) {
         url.searchParams.delete('genre');
+        changed = true;
+    }
+    if (url.searchParams.has('sort')) {
+        url.searchParams.delete('sort');
+        changed = true;
+    }
+    if (changed) {
         window.history.replaceState({}, '', url.toString());
     }
 }
@@ -256,11 +273,21 @@ function sortByYears(arr) {
     });
 }
 
+function sortByDate(arr) {
+    return [...arr].sort((a, b) => {
+        const da = a.date ? new Date(a.date) : new Date(0);
+        const db = b.date ? new Date(b.date) : new Date(0);
+        return db - da;
+    });
+}
+
 function applySort() {
     if (currentSort === 'rating') {
         currentFilteredByGenre = sortByRating(currentFilteredByGenre);
     } else if (currentSort === 'az') {
         currentFilteredByGenre = sortByAZ(currentFilteredByGenre);
+    } else if (currentSort === 'date') {
+        currentFilteredByGenre = sortByDate(currentFilteredByGenre);
     } else {
         currentFilteredByGenre = sortByYears(currentFilteredByGenre);
     }
@@ -501,13 +528,49 @@ async function loadVideoData() {
         
         console.log('Total video unik:', allVideos.length);
         
-        // CEK GENRE DARI URL, SESSION, ATAU LOCALSTORAGE
+        // CEK GENRE & SORT DARI URL, SESSION, ATAU LOCALSTORAGE
         const sessionGenre = restoreSessionState();
         const genreFromURL = getGenreFromURL();
         const genreFromStorage = getGenreFromLocalStorage();
+        const sortFromURL = getSortFromURL();
+
+        // Prioritas sort: 1) ?sort= di URL (misal dari View More New Uploads -> ?sort=date),
+        // 2) session yang tersimpan, 3) default: "date" untuk New Uploads (All), "rating" untuk genre spesifik.
+        if (sortFromURL) {
+            currentSort = sortFromURL;
+            // Navigasi baru dari index -> selalu mulai dari halaman 1
+            sessionStorage.setItem('genrePage', '1');
+        } else if (!sessionStorage.getItem('genreSort')) {
+            const targetGenre = genreFromURL || sessionGenre || genreFromStorage;
+            if (!targetGenre || targetGenre === "All") {
+                currentSort = "date";
+            }
+        }
         
         if (genreFromURL && genreFromURL !== "All") {
             filterByGenre(genreFromURL);
+            if (sortFromURL) {
+                // filterByGenre sudah pakai currentSort yang baru, pastikan ulang + halaman 1
+                currentPageNum = 1;
+                applySort();
+                renderPaginatedGrid();
+                updatePagination();
+                syncSortButtons();
+            }
+            removeGenreParamFromURL();
+            saveSessionState();
+        } else if (!genreFromURL && sortFromURL) {
+            // Kasus View More New Uploads: genre.html?sort=date (tanpa ?genre=)
+            // Paksa tampil All + sort date + halaman 1, jangan pakai session genre/page lama
+            sessionStorage.removeItem('genreCurrent');
+            localStorage.setItem('selectedGenre', 'All');
+            currentFilteredByGenre = [...allVideos];
+            currentGenre = "All";
+            currentPageNum = 1;
+            applySort();
+            renderPaginatedGrid();
+            updatePagination();
+            syncSortButtons();
             removeGenreParamFromURL();
             saveSessionState();
         } else if (sessionGenre && sessionGenre !== "All") {
