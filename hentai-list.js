@@ -1,606 +1,396 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-    <title>Allyoulike Video - Gallery Video Center</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            background: #0a0a0a;
-            color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        
-        #header-placeholder{
-          position: sticky;
-          top: 0;
-          z-index: 1000;
-        }
+// ==================== KONFIGURASI ====================
+const DATA_URL = "https://alyoulikevideo.pages.dev/p/daftar.json";
+const BASE_URL = "https://alyoulikevideo.pages.dev/p/";
+const HOME_URL = "https://alyoulikevideo.pages.dev/index.html";
+const COMIC_URL = "https://allyoulikecomic.neocities.org/";
+const VIDEO34_URL = "https://www.google.com";
+const SEARCH_PAGE_URL = "https://alyoulikevideo.pages.dev/search.html";
 
-        /* Style untuk banner container */
-        .banner-container {
-            width: 100%;
-            overflow: hidden;
-            background: #0a0a0a;
-        }
-        .banner-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
+// ==================== VARIABEL GLOBAL ====================
+let allVideos = [];
 
-        /* Container untuk sosial bar - fixed di pojok kanan bawah */
-        .social-bar-fixed {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 999;
-        }
-
-        .main-content-container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 0 24px;
-            width: 100%;
-            flex: 1;
-        }
-
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        #hentai-list-grid {
-            max-width: 1720px;
-            margin-left: auto;
-            margin-right: auto;
-            width: 100%;
-        }
-
-        @media (min-width: 768px) {
-            .video-grid {
-                grid-template-columns: repeat(5, 1fr);
-                gap: 18px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .video-grid {
-                gap: 12px;
-            }
-        }
-        
-        .hentai-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 5px;
-            max-width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-            width: 100%;
-            margin-top: 5px;
-        }
-        .hentai-col {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            min-width: 0;
-        }
-        .hentailist-item {
-            background: #000000;
-            border: 1px solid #a200f9;
-            border-radius: 5px;
-            padding: 5px 20px 5px 20px;
-            color: #fff;
-            font-weight: 600;
-            font-size: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: stretch;
-            gap: 8px;
-        }
-        .hentailist-item:hover {
-            border-color: #a200f9;
-            background: #a200f9;
-            color: #f0f0f0;
-        }
-        @media (max-width: 1280px) {
-            .hentailist-item {
-                font-size: 17px;
-            }
-        }
-        @media (max-width: 1094px) {
-            .hentai-grid {
-                grid-template-columns: repeat(1, 1fr);
-            }
-        }
-        .hentai-letter-header {
-            background: #a200f9;
-            color: #fff;
-            font-weight: 800;
-            font-size: 20px;
-            text-align: center;
-            padding: 5px 0;
-            border-radius: 5px;
-            margin-top: 0px;
-        }
-        .hentai-letter-up {
-            float: right;
-            margin-right: 5px;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 5px 0;
-            line-height: 1.4;
-        }
-        @media (max-width: 768px) {
-            .hentailist-item {
-                font-size: 15px;
-            }
-            .hentai-letter-up {
-                float: right;
-                margin-right: 5px;
-                font-size: 15px;
-                cursor: pointer;
-                padding: 5px 0;
-                line-height: 1.4;
-            }
-            .hentai-letter-header {
-                background: #a200f9;
-                color: #fff;
-                font-weight: 800;
-                font-size: 15px;
-                text-align: center;
-                padding: 5px 0;
-                border-radius: 5px;
-                margin-top: 0px;
-            }
-        }
-        @media (max-width: 540px) {
-            .hentailist-item {
-                font-size: 10px;
-            }
-        }
-        .hentai-letter-nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            justify-content: center;
-            margin: 10px 0 15px 0;
-        }
-        .hentai-letter-nav a {
-            display: inline-block;
-            min-width: 30px;
-            padding: 4px 6px;
-            background: #1a1a1a00;
-            border: 1px solid #a200f9;
-            border-radius: 5px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 16px;
-            text-align: center;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .hentai-letter-nav a:hover {
-            border-color: #a200f9;
-            background: #ffffff;
-            color: #000000;
-        }
-
-        @media (max-width: 540px) {
-            .hentai-letter-nav a {
-                display: inline-block;
-                min-width: 20px;
-                padding: 2px 5px;
-                background: #1a1a1a00;
-                border: 1px solid #a200f9;
-                border-radius: 5px;
-                color: #fff;
-                font-weight: 700;
-                font-size: 12px;
-                text-align: center;
-                cursor: pointer;
-                text-decoration: none;
-                transition: all 0.2s;
-            }
-        }
-
-        .mobile-search-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: #0a0a0aef;
-            backdrop-filter: blur(12px);
-            padding: 20px;
-            z-index: 10000;
-            border-bottom: 2px solid #ff3b6f;
-        }
-        .mobile-search-container {
-            display: flex;
-            align-items: center;
-            background: #1e1e1e;
-            border-radius: 60px;
-            padding: 4px 16px;
-            border: 1px solid #444;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            gap: 8px;
-        }
-        .mobile-search-container input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 14px 8px;
-            color: white;
-            font-size: 16px;
-            outline: none;
-        }
-        .mobile-search-container button {
-            background: transparent;
-            border: none;
-            color: #ff3b6f;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 8px;
-        }
-        #closeSearchBtn {
-            color: #aaa;
-        }
-        
-        .genre-title {
-            display: inline-block;
-            font-size: 25px;
-            font-weight: 700;
-            font-style: italic;
-            color: #fff;
-            background: #a200f9;
-            padding: 10px 20px 10px 20px;
-            letter-spacing: 0.5px;
-            margin: 0px -30px 0px 0px;
-            position: relative;
-            z-index: 2;
-            clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
-        }
-        .view-more-wrap {
-            display: inline-block;
-            text-decoration: none;
-            position: relative;
-            z-index: 1;
-            margin: 0;
-            padding: 2px;
-            background: #a200f9;
-            clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
-            transition: background 0.2s;
-        }
-        .view-more-wrap:hover {
-            background: #7d00bf;
-        }
-        .view-more {
-            display: block;
-            font-size: 15px;
-            font-weight: 700;
-            font-style: italic;
-            color: #a200f9;
-            background: #474141;
-            margin: 0px 0px 0px 5px;
-            padding: 5px 15px 5px 25px;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            position: relative;
-            z-index: 0;
-            clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
-        }
-        .view-more:hover {
-            background: #cfcfcf;
-        }
-        
-        .video-item {
-            background: #1a1a1a;
-            border-radius: 5px;
-            overflow: hidden;
-            border: 1px solid #333;
-            transition: transform 0.2s, border-color 0.2s;
-            cursor: pointer;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        .video-item:hover {
-            transform: translateY(-5px);
-            border-color: #a200f9;
-            box-shadow: 0 20px 25px -12px rgba(0,0,0,0.6);
-        }
-        .video-thumb-container {
-            position: relative;
-            background: #222;
-            aspect-ratio: 2 / 3;
-            overflow: hidden;
-        }
-        .video-thumb {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        .video-item:hover .video-thumb {
-            transform: scale(1.05);
-        }
-        .play-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.7);
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-            color: white;
-            font-size: 20px;
-            transition: 0.2s;
-            border: 2px solid rgba(255,255,255,0.5);
-            opacity: 0;
-            visibility: hidden;
-        }
-        .video-item:hover .play-overlay {
-            border-color: #a200f9;
-            opacity: 1;
-            color: #a200f9;
-            visibility: visible;
-            background: #00000000;
-        }
-        .video-title {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            padding: 5px;
-            background-color: #a200f9ad;
-            text-align: center;
-            font-weight: bold;
-            font-size: 15px;
-            line-height: 1.3;
-            color: #fff;
-            text-decoration: none;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            pointer-events: none;
-        }
-        
-        .badge-new {
-            position: absolute;
-            top: 8px;
-            left: -4px;
-            padding: 5px 15px 5px 10px;
-            font-size: 10px;
-            font-weight: 900;
-            color: white;
-            z-index: 1;
-            background: #b80006;
-            clip-path: polygon(0 0, 100% 0, 75% 100%, 100% 100%, 0 100%, 0px 50%);
-        }
-        
-        .rating-badge {
-            position: absolute;
-            top: 8px;
-            right: -4px;
-            padding: 5px 10px 5px 15px;
-            font-size: 10px;
-            font-weight: 900;
-            color: white;
-            z-index: 1;
-            background: #000;
-            clip-path: polygon(100% 0, 0 0, 25% 100%, 0 100%, 100% 100%, 100% 50%);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .rating-badge i {
-            color: #ffd700;
-            font-size: 10px;
-        }
-        
-        .pagination-container {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 2px;
-            margin: 10px 0;
-            flex-wrap: wrap;
-        }
-        .pagination-btn, .pagination-arrow {
-background: #1c1c1c00;
-border: 1px solid #a200f9;
-color: white;
-padding: 8px 14px;
-border-radius: 5px;
-cursor: pointer;
-transition: all 0.2s;
+// ==================== FUNGSI UTILITY ====================
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
 }
-.pagination-btn:hover, .pagination-arrow:hover {
-background: #a200f9;
-border-color: #a200f9;
-color: #ffffff;
-}
-        .pagination-btn.active { background: #a200f9; border-color: #a200f9; color: white; }
-        .pagination-arrow.disabled {
-            opacity: 0.35;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-        .pagination-dots { color: #aaa; padding: 0 6px; }
-        @media (max-width: 400px) {
-            .pagination-btn, .pagination-arrow {
-                background: #1c1c1c00;
-                border: 1px solid #a200f9;
-                color: white;
-                padding: 8px 10px;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: all 0.2s;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .main-content-container { padding: 0 16px; }
-            .genre-title { font-size: 18px; }
-        }
-        
-        .no-data-message {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 20px;
-            background: #101010;
-            border-radius: 32px;
-            color: #aaa;
-            font-size: 1rem;
-        }
 
-        /* Responsive untuk sosial bar di mobile */
-        @media (max-width: 768px) {
-            .social-bar-fixed {
-                bottom: 15px;
-                right: 15px;
-            }
-        }
-    </style>
-    <script src="https://rhubarbambassadorweep.com/58/f1/5f/58f15fa660a27785bef07798986ecbe7.js"></script>
-</head>
-<body>
-
-<div id="header-placeholder"></div>
-
-<!-- Container untuk top banner (di bawah header) -->
-<div id="topbanner-container" class="banner-container"></div>
-
-<div class="mobile-search-overlay" id="mobileSearchOverlay">
-    <div class="mobile-search-container">
-        <input type="text" id="searchInputMobile" placeholder="Search videos, titles..." autocomplete="off">
-        <button id="searchBtnMobile"><i class="fa-solid fa-magnifying-glass"></i></button>
-        <button id="closeSearchBtn"><i class="fa-solid fa-times"></i></button>
-    </div>
-</div>
-
-<div class="main-content-container">
-    <div id="search-info-container"></div>
+// ==================== RENDER DAFTAR JUDUL ====================
+function renderTitleList(gridId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
     
-    <div id="hentai-letter-nav" class="hentai-letter-nav"></div>
-    <div id="hentai-list-grid" class="hentai-grid">
-        <div id="hentai-col-1" class="hentai-col"></div>
-        <div id="hentai-col-2" class="hentai-col"></div>
-    </div>
-</div>
-
-<!-- Container untuk middle banner -->
-<div id="middlebanner-container" class="banner-container"></div>
-
-<!-- Container untuk bottom banner -->
-<div id="bottombanner-container" class="banner-container"></div>
-
-<!-- Container untuk sosial bar (fixed position) -->
-<div id="sosialbar-container" class="social-bar-fixed"></div>
-
-<div id="footer-placeholder"></div>
-
-<script>
-// Fungsi untuk memuat file HTML ke dalam elemen
-function loadHTML(elementId, filePath, callback) {
-    fetch(filePath + '?t=' + Date.now())
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+    const col1 = document.getElementById('hentai-col-1');
+    const col2 = document.getElementById('hentai-col-2');
+    if (!col1 && !col2) return;
+    
+    if (!allVideos || allVideos.length === 0) {
+        grid.innerHTML = '<div class="no-data-message">🎬 No titles found.</div>';
+        return;
+    }
+    
+    const sorted = [...allVideos].sort((a, b) => {
+        const ta = a.title.replace(/\s*\[Sub-ENG\]\s*/gi, '').trim().toLowerCase();
+        const tb = b.title.replace(/\s*\[Sub-ENG\]\s*/gi, '').trim().toLowerCase();
+        return ta.localeCompare(tb);
+    });
+    
+    if (col1) col1.innerHTML = "";
+    if (col2) col2.innerHTML = "";
+    
+        const lettersArr = [];
+    for (let i = 0; i < sorted.length; i++) {
+        const title = sorted[i].title.replace(/\s*\[Sub-ENG\]\s*/gi, '').trim() || "Untitled";
+        let letter = (title.charAt(0) || '#').toUpperCase();
+        if (!/[A-Z]/.test(letter)) letter = '#';
+        lettersArr.push(letter);
+    }
+    
+    const letterSetSize = [...new Set(lettersArr)].length;
+    const totalUnits = sorted.length + letterSetSize;
+    const target = Math.ceil(totalUnits / 2);
+    
+    let col1Units = 0;
+    let inCol2 = false;
+    let lastHeaderCol1 = '';
+    let lastHeaderCol2 = '';
+    
+    console.log('Unit kolom 1 target:', target, 'dari total', totalUnits, '(item', sorted.length, '+ header', letterSetSize, ')');
+    
+    for (let i = 0; i < sorted.length; i++) {
+        const video = sorted[i];
+        const title = video.title.replace(/\s*\[Sub-ENG\]\s*/gi, '').trim() || "Untitled";
+        let link = video.link.startsWith('http') ? video.link : BASE_URL + video.link;
+        const letter = lettersArr[i];
+        
+        if (!inCol2) {
+            const renderHeader = letter !== lastHeaderCol1;
+            const units = renderHeader ? 2 : 1;
+            if (col1Units + units > target) {
+                inCol2 = true;
+            } else {
+                col1Units += units;
+                if (renderHeader) {
+                    col1.innerHTML += `
+                        <div class="hentai-letter-header" data-letter="${letter}">${letter}<i class="fa-solid fa-arrow-turn-up hentai-letter-up"></i></div>
+                    `;
+                    lastHeaderCol1 = letter;
+                }
+                col1.innerHTML += `
+                    <div class="hentailist-item" data-url="${link}">
+                        <span>${escapeHtml(title)}</span>
+                    </div>
+                `;
             }
-            return response.text();
-        })
-        .then(data => {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.innerHTML = data;
-                
-                // Jika ada script di dalam konten yang dimuat, jalankan ulang
-                const scripts = element.querySelectorAll('script');
-                scripts.forEach(oldScript => {
-                    const newScript = document.createElement('script');
-                    if (oldScript.src) {
-                        newScript.src = oldScript.src;
-                    } else {
-                        newScript.textContent = oldScript.textContent;
-                    }
-                    document.body.appendChild(newScript);
-                    document.body.removeChild(newScript);
-                });
+        }
+        
+        if (inCol2) {
+            if (letter !== lastHeaderCol2 && letter !== lastHeaderCol1) {
+                col2.innerHTML += `
+                    <div class="hentai-letter-header" data-letter="${letter}">${letter}<i class="fa-solid fa-arrow-turn-up hentai-letter-up"></i></div>
+                `;
             }
-            if (callback) callback();
-        })
-        .catch(error => {
-            console.warn(`Gagal memuat ${filePath}:`, error);
-            const element = document.getElementById(elementId);
-            if (element && elementId !== 'sosialbar-container') {
-                // Tampilkan pesan error di elemen (opsional)
-                element.innerHTML = `<div style="background:#1a1a1a; color:#ff3b6f; text-align:center; padding:10px;">⚠️ Tidak dapat memuat konten</div>`;
-            } else if (elementId === 'sosialbar-container') {
-                // Untuk sosial bar, tampilkan pesan kecil
-                element.innerHTML = `<div style="background:#1a1a1a; color:#ff3b6f; padding:8px 12px; border-radius:50px; font-size:12px;">⚠️ Error</div>`;
+            lastHeaderCol2 = letter;
+            col2.innerHTML += `
+                <div class="hentailist-item" data-url="${link}">
+                    <span>${escapeHtml(title)}</span>
+                </div>
+            `;
+        }
+    }
+    
+    grid.querySelectorAll('.hentailist-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const url = item.getAttribute('data-url');
+            if (url) window.open(url, '_blank');
+        });
+    });
+    
+    grid.querySelectorAll('.hentai-letter-up').forEach(icon => {
+        icon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const nav = document.getElementById('hentai-letter-nav');
+            if (nav) {
+                const headerOffset = 120;
+                const top = nav.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: top, behavior: 'smooth' });
             }
         });
+    });
+    
+    buildLetterNav();
 }
 
-// Fungsi untuk memuat header
-function loadHeader() {
-    const headerPlaceholder = document.getElementById('header-placeholder');
-    if (headerPlaceholder) {
-        fetch('topbanner.html')
-            .then(response => response.text())
-            .then(data => {
-                headerPlaceholder.innerHTML = data;
-            })
-            .catch(error => {
-                console.warn('Gagal memuat header:', error);
-                headerPlaceholder.innerHTML = '<div style="background:#1a1a1a; color:#ff3b6f; text-align:center; padding:10px;">⚠️ Header tidak tersedia</div>';
+// ==================== BUILD LETTER NAVIGATION ====================
+function buildLetterNav() {
+    const nav = document.getElementById('hentai-letter-nav');
+    if (!nav) return;
+    nav.innerHTML = "";
+    
+    const headers = document.querySelectorAll('.hentai-letter-header');
+    const present = [];
+    headers.forEach(h => {
+        const letter = h.getAttribute('data-letter');
+        if (letter && present.indexOf(letter) === -1) present.push(letter);
+    });
+    
+    const all = ['#'];
+    for (let c = 65; c <= 90; c++) all.push(String.fromCharCode(c));
+    
+    all.forEach(letter => {
+        const a = document.createElement('a');
+        a.textContent = letter;
+        a.className = 'hentai-letter-link';
+        if (present.indexOf(letter) === -1) {
+            a.style.opacity = '0.35';
+            a.style.cursor = 'default';
+            a.style.pointerEvents = 'none';
+        } else {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector('.hentai-letter-header[data-letter="' + letter + '"]');
+                if (target) {
+                    const headerOffset = 120;
+                    const top = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+                    window.scrollTo({ top: top, behavior: 'smooth' });
+                }
             });
+        }
+        nav.appendChild(a);
+    });
+}
+
+// ==================== ATTACH HEADER EVENTS ====================
+function attachHeaderEvents() {
+    const searchDesktopBtn = document.getElementById('searchBtnDesktop');
+    const searchDesktopInput = document.getElementById('searchInputDesktop');
+    if (searchDesktopBtn && searchDesktopInput) {
+        searchDesktopBtn.onclick = () => {
+            const query = searchDesktopInput.value;
+            if (query.trim()) {
+                window.location.href = `${SEARCH_PAGE_URL}?q=${encodeURIComponent(query.trim())}`;
+            }
+        };
+        searchDesktopInput.onkeypress = (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value;
+                if (query.trim()) {
+                    window.location.href = `${SEARCH_PAGE_URL}?q=${encodeURIComponent(query.trim())}`;
+                }
+            }
+        };
+    }
+    
+    const mobileIcon = document.getElementById('searchIconMobile');
+    const mobileOverlay = document.getElementById('mobileSearchOverlay');
+    const closeSearch = document.getElementById('closeSearchBtn');
+    const mobileSearchBtn = document.getElementById('searchBtnMobile');
+    const mobileSearchInput = document.getElementById('searchInputMobile');
+    
+    if (mobileIcon && mobileOverlay) {
+        mobileIcon.onclick = () => { mobileOverlay.style.display = 'flex'; };
+    }
+    if (closeSearch && mobileOverlay) {
+        closeSearch.onclick = () => { mobileOverlay.style.display = 'none'; };
+    }
+    if (mobileSearchBtn && mobileSearchInput && mobileOverlay) {
+        mobileSearchBtn.onclick = () => {
+            const q = mobileSearchInput.value.trim();
+            mobileOverlay.style.display = 'none';
+            if (q) window.location.href = `${SEARCH_PAGE_URL}?q=${encodeURIComponent(q)}`;
+        };
+        mobileSearchInput.onkeypress = (e) => {
+            if (e.key === 'Enter') {
+                const q = e.target.value.trim();
+                mobileOverlay.style.display = 'none';
+                if (q) window.location.href = `${SEARCH_PAGE_URL}?q=${encodeURIComponent(q)}`;
+            }
+        };
+    }
+    
+    const navHome = document.getElementById('navHome');
+    const navRandom = document.getElementById('navRandom');
+    const navComic = document.getElementById('navComic');
+    const navVideo34 = document.getElementById('navVideo34');
+    const logoElem = document.getElementById('logoClick');
+    
+    if (navHome) navHome.onclick = (e) => { e.preventDefault(); window.location.href = HOME_URL; };
+    if (navRandom) {
+        navRandom.onclick = (e) => { 
+            e.preventDefault(); 
+            if (allVideos.length) {
+                const randomIndex = Math.floor(Math.random() * allVideos.length);
+                const randomItem = allVideos[randomIndex];
+                let targetLink = randomItem.link.startsWith('http') ? randomItem.link : BASE_URL + randomItem.link;
+                window.open(targetLink, '_blank');
+            }
+        };
+    }
+    if (navComic) navComic.onclick = (e) => { e.preventDefault(); window.location.href = COMIC_URL; };
+    if (navVideo34) navVideo34.onclick = (e) => { e.preventDefault(); window.open(VIDEO34_URL, '_blank'); };
+    if (logoElem) logoElem.onclick = () => { window.location.href = HOME_URL; };
+    
+    const genreBtn = document.getElementById('navGenre');
+    const genreDropdown = document.getElementById('genreDropdown');
+    
+    if (genreBtn && genreDropdown) {
+        genreBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            genreDropdown.classList.toggle('show');
+        };
+        
+        const genreItems = genreDropdown.querySelectorAll('a');
+        genreItems.forEach(item => {
+            item.onclick = (e) => {
+                e.preventDefault();
+                const genre = item.getAttribute('data-genre');
+                if (genre) {
+                    window.location.href = `${HOME_URL}genre.html?genre=${encodeURIComponent(genre)}`;
+                }
+                genreDropdown.classList.remove('show');
+            };
+        });
+    }
+    
+    document.addEventListener('click', function(e) {
+        if (genreDropdown && genreBtn) {
+            if (!genreBtn.contains(e.target) && !genreDropdown.contains(e.target)) {
+                genreDropdown.classList.remove('show');
+            }
+        }
+    });
+}
+
+// ==================== HEADER NAV (HAMBURGER & DROPDOWN) ====================
+function initHeaderNav() {
+    const dropdownBtn = document.querySelector('.dropbtn-click');
+    const dropdownContent = document.querySelector('.dropdown-content-click');
+    if (dropdownBtn && dropdownContent) {
+        dropdownBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownContent.classList.toggle('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (!dropdownBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
+                dropdownContent.classList.remove('show');
+            }
+        });
+    }
+
+    document.querySelectorAll('.more-sites-trigger').forEach((trigger) => {
+        const dropdown = trigger.nextElementSibling;
+        if (dropdown && dropdown.classList.contains('more-sites-dropdown')) {
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+    });
+
+    const hamburger = document.getElementById('hamburgerMenu');
+    const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+    if (hamburger && mobileNavOverlay) {
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileNavOverlay.classList.toggle('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.mobile-nav-sidebar a')) {
+                mobileNavOverlay.classList.remove('show');
+            }
+        });
+    }
+
+    const navRandomMobile = document.getElementById('navRandomMobile');
+    if (navRandomMobile) {
+        navRandomMobile.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (allVideos.length) {
+                const randomIndex = Math.floor(Math.random() * allVideos.length);
+                const item = allVideos[randomIndex];
+                window.open(item.link.startsWith('http') ? item.link : BASE_URL + item.link, '_blank');
+            }
+        });
     }
 }
 
-// Memuat semua banner dan sosial bar setelah halaman dimuat
-document.addEventListener('DOMContentLoaded', function() {
-    // Panggil fungsi load untuk masing-masing komponen
-    loadHTML('topbanner-container', 'topbanner.html');
-    loadHTML('middlebanner-container', 'middlebanner.html');
-    loadHTML('bottombanner-container', 'bottombanner.html');
-    loadHTML('sosialbar-container', 'sosialbar.html');
-    loadHTML('footer-placeholder', 'footer.html');
-    
-    // Load header terpisah karena posisinya berbeda
-    loadHeader();
-});
-</script>
+// ==================== LOAD DATA ====================
+async function loadHeader() {
+    try {
+        const response = await fetch('genre-header.html');
+        const headerHtml = await response.text();
+        document.getElementById('header-placeholder').innerHTML = headerHtml;
+        attachHeaderEvents();
+        initHeaderNav();
+    } catch (error) {
+        console.error('Gagal load header:', error);
+    }
+}
 
-<script src="hentai-list.js"></script>
-<script src="tracker.js?v=13"></script>
-</body>
-</html>
+async function loadFooter() {
+    try {
+        const response = await fetch('footer.html');
+        const footerHtml = await response.text();
+        document.getElementById('footer-placeholder').innerHTML = footerHtml;
+    } catch (error) {
+        console.error('Gagal load footer:', error);
+    }
+}
+
+async function loadVideoData() {
+    try {
+        const col1 = document.getElementById('hentai-col-1');
+        if (col1) col1.innerHTML = '<div class="no-data-message"><i class="fa-solid fa-spinner fa-pulse"></i> Loading...</div>';
+        
+        const response = await fetch(DATA_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        
+        let pages = (data.pages || []).filter(item => (item.lengkap || "").trim().toLowerCase() === "yes");
+        
+        allVideos = pages.map((item) => ({
+            title: item.title || "Untitled",
+            link: item.link || "#",
+            image: item.image || "https://placehold.co/300x450?text=No+Image",
+            genre: item.genre || "",
+            date: item.date || ""
+        }));
+        
+        const uniqueLinks = new Map();
+        allVideos.forEach(video => {
+            if (!uniqueLinks.has(video.link)) {
+                uniqueLinks.set(video.link, video);
+            }
+        });
+        allVideos = Array.from(uniqueLinks.values());
+        
+        console.log('Total video unik:', allVideos.length);
+        
+        renderTitleList('hentai-list-grid');
+        
+    } catch (err) {
+        console.error('Error:', err);
+        const col1 = document.getElementById('hentai-col-1');
+        if (col1) col1.innerHTML = `<div class="no-data-message">❌ Error: ${err.message}</div>`;
+    }
+}
+
+// ==================== START ====================
+document.addEventListener("DOMContentLoaded", () => {
+    loadHeader();
+    loadFooter();
+    loadVideoData();
+});
