@@ -11,7 +11,7 @@ let allVideos = [];
 let currentPageNum = 1;
 let currentGenre = "All";
 let currentFilteredByGenre = [];
-let currentSort = sessionStorage.getItem('seriesSort') || "az";
+let currentSort = sessionStorage.getItem('seriesSort') || "lastair";
 const itemsPerPage = 12;
 
 // ==================== SESSION STATE (reset saat tab ditutup) ====================
@@ -28,17 +28,34 @@ function restoreSessionState() {
     return null;
 }
 
-// ==================== BACA GENRE DARI URL ====================
+// ==================== BACA GENRE & SORT DARI URL ====================
 function getGenreFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('genre');
 }
 
+function getSortFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const s = urlParams.get('sort');
+    if (s && ['rating', 'az', 'years', 'lastair'].includes(s.toLowerCase())) {
+        return s.toLowerCase();
+    }
+    return null;
+}
+
 // ==================== HAPUS PARAMETER URL ====================
 function removeGenreParamFromURL() {
     const url = new URL(window.location.href);
+    let changed = false;
     if (url.searchParams.has('genre')) {
         url.searchParams.delete('genre');
+        changed = true;
+    }
+    if (url.searchParams.has('sort')) {
+        url.searchParams.delete('sort');
+        changed = true;
+    }
+    if (changed) {
         window.history.replaceState({}, '', url.toString());
     }
 }
@@ -244,13 +261,32 @@ function sortByYears(arr) {
     });
 }
 
+function parseAirDate(s) {
+    if (!s) return 0;
+    const t = new Date(s.replace(/\./g, '').trim()).getTime();
+    return isNaN(t) ? 0 : t;
+}
+
+function sortByLastAir(arr) {
+    return [...arr].sort((a, b) => {
+        const diff = parseAirDate(b.lastAirDate) - parseAirDate(a.lastAirDate);
+        if (diff !== 0) return diff;
+        const da = a.date ? new Date(a.date).getTime() || 0 : 0;
+        const db = b.date ? new Date(b.date).getTime() || 0 : 0;
+        return db - da;
+    });
+}
+
 function applySort() {
     if (currentSort === 'rating') {
         currentFilteredByGenre = sortByRating(currentFilteredByGenre);
     } else if (currentSort === 'az') {
         currentFilteredByGenre = sortByAZ(currentFilteredByGenre);
-    } else {
+    } else if (currentSort === 'years') {
         currentFilteredByGenre = sortByYears(currentFilteredByGenre);
+    } else {
+        currentSort = 'lastair';
+        currentFilteredByGenre = sortByLastAir(currentFilteredByGenre);
     }
 }
 
@@ -475,6 +511,7 @@ async function loadVideoData() {
             genre: item.genre || "",
             rating: item.rating || "",
             firstAirDate: (() => { const d = item['First air date'] || ''; const m = d.match(/\b(\d{4})\b/); return m ? m[1] : (item.date || '').slice(0,4); })(),
+            lastAirDate: item['Last air date'] || "",
             date: item.date || ""
         }));
         
@@ -489,13 +526,25 @@ async function loadVideoData() {
         console.log('Total video unik:', allVideos.length);
         
         // TAMPILKAN SEMUA TANPA FILTER GENRE
+        // Prioritas sort: 1) ?sort= di URL (misal dari View More New Hentai -> ?sort=lastair),
+        // 2) session tersimpan, 3) default "lastair" agar sama seperti slider New Hentai di index.
+        restoreSessionState();
+        const sortFromURL = getSortFromURL();
+        if (sortFromURL) {
+            currentSort = sortFromURL;
+            currentPageNum = 1;
+        } else if (!sessionStorage.getItem('seriesSort')) {
+            currentSort = "lastair";
+            currentPageNum = 1;
+        }
         currentFilteredByGenre = [...allVideos];
         currentGenre = "All";
-        currentPageNum = sessionStorage.getItem('seriesPage') ? parseInt(sessionStorage.getItem('seriesPage'), 10) || 1 : 1;
         applySort();
         renderPaginatedGrid();
         updatePagination();
         syncSortButtons();
+        removeGenreParamFromURL();
+        saveSessionState();
         
     } catch (err) {
         console.error('Error:', err);
